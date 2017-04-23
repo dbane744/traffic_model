@@ -22,8 +22,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Contains the main method and gui for the application.
@@ -70,39 +72,42 @@ public class traffic_model {
     
     frame = new JFrame("Agent-based traffic wave model");
     // Size of entire frame - currently commented out due to using pack() instead. Uncomment this line if manual tweaking is required.
-    frame.setBounds(100, 100, 809, 537);
+    frame.setBounds(0, 0, 1200, 800);
     // Sets the frame to fit the preferred size of it's components. 
     //frame.pack();
     // Allows the window to close when the user clicks the top right X.
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    // Sets the layout for the content pane - allows two panels to be placed side by side(1 row and 2 columns).
     
-    // Deals with setting up the control panel and the image panel. 
     
     // Makes the grid bag layout.
     GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    gridBagLayout.columnWidths = new int[] {18, 3};
     gridBagLayout.rowHeights = new int[]{0, 0};
-    gridBagLayout.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+    // Is responsible for setting the relative widths of the columns. 
+    gridBagLayout.columnWeights = new double[]{0.4, 1.0};
     gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+    // Sets the frame to the gridBag layout.
     frame.getContentPane().setLayout(gridBagLayout);
     
     // Makes the model control panel - left hand side panel.
-    JPanel controlPanel = new JPanel();
+    ControlPanel controlPanel = new ControlPanel();
     GridBagConstraints gbc_cp = new GridBagConstraints();
-    gbc_cp.gridwidth = 4;
-    gbc_cp.insets = new Insets(0, 0, 0, 5);
+    //gbc_cp.insets = new Insets(0, 0, 0, 5);
+    // The panel will expand horizontally and vertically to fit components added.
     gbc_cp.fill = GridBagConstraints.BOTH;
     gbc_cp.gridx = 0;
-    gbc_cp.gridy = 0;
+    //gbc_cp.gridy = 0;
     frame.getContentPane().add(controlPanel, gbc_cp);
     
     //Makes the image panel - right hand side panel. 
     ModelPanel imagePanel = new ModelPanel();
     GridBagConstraints gbc_ip = new GridBagConstraints();
-    gbc_ip.gridwidth = 16;
+    //gbc_ip.gridwidth = 1;
     gbc_ip.fill = GridBagConstraints.BOTH;
-    gbc_ip.gridx = 4;
-    gbc_ip.gridy = 0;
+    gbc_ip.gridx = 1;
+    //gbc_ip.gridy = 1;
+    
     frame.getContentPane().add(imagePanel, gbc_ip);
     
     //Deals with the menu bar.
@@ -171,11 +176,13 @@ public class traffic_model {
     JMenuItem mntmAbout = new JMenuItem("About");
     mnHelp.add(mntmAbout);
 
+
   }
 }
 
 
 /**
+ * Encapsulates the image/model panel within the gui.
  * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
  * @author User
  *
@@ -185,12 +192,13 @@ class ModelPanel extends JPanel {
   
 
   public ModelPanel() {
-      setBorder(BorderFactory.createLineBorder(Color.black));
+    // A matte border that is set to only draw on the left hand side (acts as a single line separating the panels).
+    setBorder(BorderFactory.createMatteBorder(0,1,0,0,Color.black));
   }
 
-  /*public Dimension getPreferredSize() {
-      return new Dimension(250,200);
-  }*/
+  public Dimension getPreferredSize() {
+      return new Dimension(500,500);
+  }
 
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
@@ -198,8 +206,26 @@ class ModelPanel extends JPanel {
     Image image = Storage.getInstance().getDataAsImage();
     
     if(image != null){
-
-      g.drawImage(image, 0, 0, null);
+      // getWidth() and getHeight() (inherited from JPanel) allows the image to fit into a frame that is resized manually by the user.
+      g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
     }
+  }
+}
+
+/**
+ * Encapsulates the control panel within the gui.
+ * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
+ * @author User
+ *
+ */
+class ControlPanel extends JPanel {
+
+  public Dimension getPreferredSize() {
+      return new Dimension(300,500);
+  }
+
+  public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+
   }
 }
