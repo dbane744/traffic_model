@@ -1,9 +1,15 @@
 package traffic_model;
 
 import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Image;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -13,7 +19,17 @@ import javax.swing.KeyStroke;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
+import javax.swing.JSplitPane;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
+/**
+ * Contains the main method and gui for the application.
+ * @author User
+ *
+ */
 public class traffic_model {
   /**
    * Stores the JFrame.
@@ -25,6 +41,7 @@ public class traffic_model {
    * Launch the application.
    */
   public static void main(String[] args) {
+    // This prevents potential race conditions by placing the gui initialise code in the event dispatch thread.
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
@@ -48,18 +65,45 @@ public class traffic_model {
    * Initialize the contents of the frame/gui.
    */
   private void initialize() {
-    frame = new JFrame();
-    // Size of entire frame.
-    frame.setBounds(100, 100, 831, 530);
+    
+    // Deals with setting up the frame.
+    
+    frame = new JFrame("Agent-based traffic wave model");
+    // Size of entire frame - currently commented out due to using pack() instead. Uncomment this line if manual tweaking is required.
+    frame.setBounds(100, 100, 809, 537);
+    // Sets the frame to fit the preferred size of it's components. 
+    //frame.pack();
     // Allows the window to close when the user clicks the top right X.
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.getContentPane().setLayout(null);
     
-    // Deals with the panel that contains the area map / agent-based model.
+    // Deals with setting up the control panel and the image panel. 
     
-    JPanel panel = new JPanel();
-    panel.setBounds(223, 21, 565, 424);
-    frame.getContentPane().add(panel);
+    // Makes the grid bag layout.
+    GridBagLayout gridBagLayout = new GridBagLayout();
+    gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    gridBagLayout.rowHeights = new int[]{0, 0};
+    gridBagLayout.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+    gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+    frame.getContentPane().setLayout(gridBagLayout);
+    
+    // Makes the model control panel - left hand side panel.
+    JPanel controlPanel = new JPanel();
+    GridBagConstraints gbc_cp = new GridBagConstraints();
+    gbc_cp.gridwidth = 4;
+    gbc_cp.insets = new Insets(0, 0, 0, 5);
+    gbc_cp.fill = GridBagConstraints.BOTH;
+    gbc_cp.gridx = 0;
+    gbc_cp.gridy = 0;
+    frame.getContentPane().add(controlPanel, gbc_cp);
+    
+    //Makes the image panel - right hand side panel. 
+    ModelPanel imagePanel = new ModelPanel();
+    GridBagConstraints gbc_ip = new GridBagConstraints();
+    gbc_ip.gridwidth = 16;
+    gbc_ip.fill = GridBagConstraints.BOTH;
+    gbc_ip.gridx = 4;
+    gbc_ip.gridy = 0;
+    frame.getContentPane().add(imagePanel, gbc_ip);
     
     //Deals with the menu bar.
     
@@ -81,6 +125,7 @@ public class traffic_model {
         try {
           // Opens a file dialog and stores the inputed data within Storage.
           Storage.getInstance().setMap(IO.readData());
+          imagePanel.repaint();
         } catch (Exception e1) {
           e1.printStackTrace();
         }
@@ -125,5 +170,36 @@ public class traffic_model {
     
     JMenuItem mntmAbout = new JMenuItem("About");
     mnHelp.add(mntmAbout);
+
+  }
+}
+
+
+/**
+ * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
+ * @author User
+ *
+ */
+class ModelPanel extends JPanel {
+  
+  
+
+  public ModelPanel() {
+      setBorder(BorderFactory.createLineBorder(Color.black));
+  }
+
+  /*public Dimension getPreferredSize() {
+      return new Dimension(250,200);
+  }*/
+
+  public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    // If available, paints the area map data stored in Storage as an image.
+    Image image = Storage.getInstance().getDataAsImage();
+    
+    if(image != null){
+
+      g.drawImage(image, 0, 0, null);
+    }
   }
 }
