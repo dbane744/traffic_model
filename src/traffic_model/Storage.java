@@ -20,9 +20,14 @@ public class Storage {
   private static Storage storage = null;
   
   /**
-   * Stores the map of the area including the road network.
+   * Stores the initial map state including the road network.
    */
   private double[][] areaMap;
+  
+  /**
+   * Stores the current state of the model (changes constantly as the model is ran). Can be reset by the user to contain areaMap. 
+   */
+  private double[][] temporaryMap;
 
   
   // Defeats instantiation 
@@ -44,14 +49,13 @@ public class Storage {
   
   
   /**
-   * Sets the area map
+   * Sets the area map. Also resets the temporary map to the same data.
    * 
    * @param inputMap
    */
   public void setMap(double[][] inputMap) {
-    System.out.println("MAP IS ABOUT TO BE SET");
     areaMap = inputMap;
-    System.out.println("THE MAP WAS SET");
+    temporaryMap = inputMap;
   }
 
   /**
@@ -61,8 +65,33 @@ public class Storage {
    */
   public double[][] getMap() {
 
-    System.out.println("THE MAP WAS GOTTEN");
     return this.areaMap;
+  }
+  
+  /**
+   * Sets the current state of the temporary map. 
+   * @param inputMap The current state of the map while the model is running.
+   */
+  public void setTempMap(double[][] inputMap){
+    
+    temporaryMap = inputMap;
+  }
+  
+  /**
+   * Gets the current map state.
+   * @return The current map state.
+   */
+  public double[][] getTempMap(){
+    
+    return temporaryMap;
+  }
+  
+  /**
+   * Resets the temporary map to the state of the initially loaded areaMap. 
+   */
+  public void resetMap(){
+    
+    temporaryMap = areaMap;
   }
   
   /**

@@ -19,9 +19,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
@@ -29,6 +32,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Point;
+
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -36,7 +41,7 @@ import net.miginfocom.swing.MigLayout;
  * @author User
  *
  */
-public class traffic_model {
+public class Main_gui {
   /**
    * Stores the JFrame.
    */
@@ -51,7 +56,7 @@ public class traffic_model {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
-          traffic_model window = new traffic_model();
+          Main_gui window = new Main_gui();
           window.frame.setVisible(true);
         } catch (Exception e) {
           e.printStackTrace();
@@ -63,7 +68,7 @@ public class traffic_model {
   /**
    * Creates the application's gui and event listeners.
    */
-  public traffic_model() {
+  public Main_gui() {
     initialize();
   }
 
@@ -72,7 +77,9 @@ public class traffic_model {
    */
   private void initialize() {
     
-    // Deals with setting up the frame.
+    /*
+     * Deals with setting up the frame.
+     */
     
     frame = new JFrame("Agent-based traffic wave model");
     // Size of entire frame - currently commented out due to using pack() instead. Uncomment this line if manual tweaking is required.
@@ -84,11 +91,65 @@ public class traffic_model {
     // Sets the layout for the frame's content pane - uses Mig layout.
     frame.getContentPane().setLayout(new MigLayout("", "[grow,fill]0[]", "[grow,fill]0[]"));
     
-    // Deals with the panels within the frame.
+    // Sets up the panels within the frame.
     
     ControlPanel cpPanel = new ControlPanel();
     StatisticsPanel sPanel = new StatisticsPanel();
     ModelPanel mPanel = new ModelPanel();
+    
+    // Inner anonymous class that implements a mouse listener on the model panel.
+    // Grabs the location where the mouse was clicked to allow the placement of cars or traffic lights.
+    // Left click on or to the side of the road places a car. Right click places a traffic light.
+    class MouseAdp extends MouseAdapter{
+      public void mouseClicked(MouseEvent me){
+        
+        // Gets the current instance of temporaryMap in Storage.
+        double[][] tempMap = Storage.getInstance().getTempMap();
+        
+        // Only listens for clicks if there is an image loaded in the panel.
+        if(tempMap != null){
+        
+        // Returns the point that was clicked. And stores the x and y values for further use.
+        Point clickedPoint = me.getPoint();
+        int x = (int) clickedPoint.getX();
+        int y = (int) clickedPoint.getY();
+        
+          /*
+           * The next if/else if statements use for loops to search 15 spaces
+           * upwards, downwards, leftwards and rightwards of the clicked point
+           * to find a road. If a road is found a traffic light or car will be
+           * placed in the temporary map.
+           * One click only places one traffic light at the first road element found. Prevents multiple traffic lights being placed.
+           * The reason for this is to make it easier for the user to place objects rather than having to directly click the small road.
+           * WARNING: This means that inputed road networks cannot be in close proximity or bugs will arise with traffic light placement.
+           */
+        
+        // Places a vehicle in temporaryMap (which is displayed in the panel) if the user left clicks on or near the road.
+        if(SwingUtilities.isLeftMouseButton(me)){
+          
+          System.out.println(tempMap.length);
+          // Searches 15 spaces to the right of the clicked point for a road.
+          for (int i = 0; i < 15; i++) {
+            if(tempMap[x][y + i] == 1){
+              tempMap[x][y + i] = 2; 
+              break;
+            }
+          }
+        } 
+        
+        // Places a traffic light if the user right clicks near a road.
+        else if(SwingUtilities.isRightMouseButton(me)){
+          
+          
+          System.out.println("RIGHT CLICK");
+        }
+        
+        }
+        
+      }
+    }
+    
+    mPanel.addMouseListener(new MouseAdp());
     
     frame.add(mPanel, "dock east");
     frame.add(cpPanel);
@@ -135,6 +196,9 @@ public class traffic_model {
     startButton.setToolTipText("Click to stop and reset the model");
     cpPanel.add(resetButton);
     
+    /*
+     * Deals with the menus.
+     */
     
     //Deals with the menu bar.
     
@@ -267,7 +331,7 @@ class ControlPanel extends JPanel {
 class StatisticsPanel extends JPanel {
 
   public Dimension getPreferredSize() {
-      return new Dimension(400,400);
+      return new Dimension(500, 500);
   }
 
   public void paintComponent(Graphics g) {
