@@ -5,7 +5,11 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -77,38 +81,60 @@ public class traffic_model {
     //frame.pack();
     // Allows the window to close when the user clicks the top right X.
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    // Sets the layout for the content pane - allows two panels to be placed side by side(1 row and 2 columns).
+    // Sets the layout for the frame's content pane - uses Mig layout.
+    frame.getContentPane().setLayout(new MigLayout("", "[grow,fill]0[]", "[grow,fill]0[]"));
+    
+    // Deals with the panels within the frame.
+    
+    ControlPanel cpPanel = new ControlPanel();
+    StatisticsPanel sPanel = new StatisticsPanel();
+    ModelPanel mPanel = new ModelPanel();
+    
+    frame.add(mPanel, "dock east");
+    frame.add(cpPanel);
+    frame.add(sPanel, "dock south");
+    
+    /*
+     * Deals with components within the control panel.
+     */
     
     
-    // Makes the grid bag layout.
-    GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[] {18, 3};
-    gridBagLayout.rowHeights = new int[]{0, 0};
-    // Is responsible for setting the relative widths of the columns. 
-    gridBagLayout.columnWeights = new double[]{0.4, 1.0};
-    gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
-    // Sets the frame to the gridBag layout.
-    frame.getContentPane().setLayout(gridBagLayout);
+    // Layout manager for the control panel. Second paramter = rows third paraemter = columns.
+    cpPanel.setLayout(new MigLayout("","[][]", "50[]150[]20[]20[]"));
     
-    // Makes the model control panel - left hand side panel.
-    ControlPanel controlPanel = new ControlPanel();
-    GridBagConstraints gbc_cp = new GridBagConstraints();
-    //gbc_cp.insets = new Insets(0, 0, 0, 5);
-    // The panel will expand horizontally and vertically to fit components added.
-    gbc_cp.fill = GridBagConstraints.BOTH;
-    gbc_cp.gridx = 0;
-    //gbc_cp.gridy = 0;
-    frame.getContentPane().add(controlPanel, gbc_cp);
+    // Deals with the time/tick text box.
     
-    //Makes the image panel - right hand side panel. 
-    ModelPanel imagePanel = new ModelPanel();
-    GridBagConstraints gbc_ip = new GridBagConstraints();
-    //gbc_ip.gridwidth = 1;
-    gbc_ip.fill = GridBagConstraints.BOTH;
-    gbc_ip.gridx = 1;
-    //gbc_ip.gridy = 1;
+    // Text label
+    JLabel timeLabel = new JLabel("Number of ticks to run for: ");
+    cpPanel.add(timeLabel);
     
-    frame.getContentPane().add(imagePanel, gbc_ip);
+    // Text box user will enter into.
+    // timeField sets the number of ticks the model will run for. 
+    JFormattedTextField timeField = new JFormattedTextField();
+    // Initial value of the text field. 
+    timeField.setValue(new Double(100));
+    // Width of the text field
+    timeField.setColumns(5);
+    cpPanel.add(timeField, "wrap");
+    
+    // Deals with the start button.
+    
+    JButton startButton = new JButton("START");
+    startButton.setToolTipText("Click to start the model");
+    cpPanel.add(startButton, "wrap");
+    
+    // Deals with the pause button.
+    
+    JButton pauseButton = new JButton("PAUSE");
+    startButton.setToolTipText("Click to pause the model");
+    cpPanel.add(pauseButton, "wrap");
+    
+    // Deals with the stop button.
+    
+    JButton resetButton = new JButton("RESET");
+    startButton.setToolTipText("Click to stop and reset the model");
+    cpPanel.add(resetButton);
+    
     
     //Deals with the menu bar.
     
@@ -130,7 +156,7 @@ public class traffic_model {
         try {
           // Opens a file dialog and stores the inputed data within Storage.
           Storage.getInstance().setMap(IO.readData());
-          imagePanel.repaint();
+          mPanel.repaint();
         } catch (Exception e1) {
           e1.printStackTrace();
         }
@@ -175,8 +201,6 @@ public class traffic_model {
     
     JMenuItem mntmAbout = new JMenuItem("About");
     mnHelp.add(mntmAbout);
-
-
   }
 }
 
@@ -184,20 +208,18 @@ public class traffic_model {
 /**
  * Encapsulates the image/model panel within the gui.
  * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
- * @author User
+ * @author Daniel Bane
  *
  */
 class ModelPanel extends JPanel {
   
-  
-
   public ModelPanel() {
     // A matte border that is set to only draw on the left hand side (acts as a single line separating the panels).
     setBorder(BorderFactory.createMatteBorder(0,1,0,0,Color.black));
   }
 
   public Dimension getPreferredSize() {
-      return new Dimension(500,500);
+      return new Dimension(800,800);
   }
 
   public void paintComponent(Graphics g) {
@@ -215,17 +237,42 @@ class ModelPanel extends JPanel {
 /**
  * Encapsulates the control panel within the gui.
  * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
- * @author User
+ * @author Daniel Bane
  *
  */
 class ControlPanel extends JPanel {
+  
+  public ControlPanel(){
+    // A matte border that is set to only draw on the bottom side (acts as a single line separating the panels).
+    setBorder(BorderFactory.createMatteBorder(0,0,1,0,Color.black));
+  }
 
   public Dimension getPreferredSize() {
-      return new Dimension(300,500);
+      return new Dimension(400,400);
   }
 
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
+    
+    g.drawString("Control Panel", 0, 20);
+  }
+}
 
+/**
+ * Encapsulates the statistics panel within the gui.
+ * A separate class that inherits from JPanel. Placed in traffic_model.java as it is semantically related to the frame/gui.
+ * @author Daniel Bane
+ *
+ */
+class StatisticsPanel extends JPanel {
+
+  public Dimension getPreferredSize() {
+      return new Dimension(400,400);
+  }
+
+  public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    
+    g.drawString("Statistics", 0, 20);
   }
 }
