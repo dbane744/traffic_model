@@ -22,10 +22,10 @@ public class Storage {
   /**
    * Stores the initial map state including the road network.
    */
-  private double[][] areaMap;
+  private double[][] initialMap;
   
   /**
-   * Stores the current state of the model (changes constantly as the model is ran). Can be reset by the user to contain areaMap. 
+   * Stores the current state of the model (changes constantly as the model is ran). Can be reset by the user to contain initialMap. 
    */
   private double[][] temporaryMap;
 
@@ -54,7 +54,7 @@ public class Storage {
    * @param inputMap
    */
   public void setMap(double[][] inputMap) {
-    areaMap = inputMap;
+    initialMap = inputMap;
     temporaryMap = inputMap;
   }
 
@@ -65,7 +65,7 @@ public class Storage {
    */
   public double[][] getMap() {
 
-    return this.areaMap;
+    return this.initialMap;
   }
   
   /**
@@ -87,45 +87,46 @@ public class Storage {
   }
   
   /**
-   * Resets the temporary map to the state of the initially loaded areaMap. 
+   * Resets the temporary map to the state of the initially loaded initialMap. 
    */
   public void resetMap(){
     
-    temporaryMap = areaMap;
+    temporaryMap = initialMap;
   }
   
   /**
-   * Processes the 2Darray stored in areaMap into an Image.
+   * Processes the 2Darray stored in initialMap into an Image.
    * 
-   * @return An Image of areaMap
+   * @return An Image of initialMap
    */
   public Image getDataAsImage() {
       //Only works if there is data stored.
-      if (areaMap != null) {
+      if (temporaryMap != null) {
           // Copies the data into a 1D array to allow the creation of an Image. 
-          double[] areaMap1D= get1DArray();
+          double[] temporaryMap1D= get1DArray();
           // Stores the colour of each pixel in the array/image. 
-          int[] pixels = new int[areaMap1D.length];
+          int[] pixels = new int[temporaryMap1D.length];
 
           for (int i = 0; i < pixels.length; i++) {
-              int value = (int) areaMap1D[i];
+              int value = (int) temporaryMap1D[i];
 
-              // Sets the colour of road pixels(which should be valued 1) to black.
-              if (value == 1) {
+              // Sets the colour of road pixels(which should be valued 1,2,3 or 4 depending on their N/E/S/W facing direction) to black.
+              if (value == 1 | value == 2 | value == 3 | value == 4) {
 
                   Color color = new Color(0, 0, 0);
                   pixels[i] = color.getRGB();
               }
 
-              // Sets the colour of vehicles(which should be valued 2) to blue.
-              else if (value == 2) {
+              // Sets the colour of vehicles(which should be valued the value of the road tile they are on + 9) to blue.
+              // i.e a north facing road (which has a value of 1) would have the value of 10 if a vehicle was on it.
+              else if (value == 10 | value == 20 | value == 30 | value == 40) {
 
                   Color color = new Color(255, 0, 0);
                   pixels[i] = color.getRGB();
               } 
               
-              // Sets the colour of the traffic lights(which should be valued 3) to red.
-              else if (value == 3){
+              // Sets the colour of the traffic lights(which should be valued 100) to red.
+              else if (value == 100){
                 
                 Color color = new Color(0, 0, 255);
                 pixels[i] = color.getRGB();
@@ -138,8 +139,8 @@ public class Storage {
           
           // The next bit creates the image using the pixel array.
           
-          MemoryImageSource memSource = new MemoryImageSource(areaMap[0].length,
-                  areaMap.length, pixels, 0, areaMap[0].length);
+          MemoryImageSource memSource = new MemoryImageSource(temporaryMap[0].length,
+                  temporaryMap.length, pixels, 0, temporaryMap[0].length);
           // Creates a panel for the image to sit on.
           Panel panel = new Panel();
           Image image = panel.createImage(memSource);
@@ -154,18 +155,18 @@ public class Storage {
   }
   
   /**
-   * Moves the data from areaMap into a 1D array - allows it to be turned into an image.
+   * Moves the data from temporaryMap into a 1D array - allows it to be turned into an image.
    * 
    * @return A 1D array.
    */
   private double[] get1DArray() {
 
       // Holds the new data temporarily. 
-      double[] tempArray = new double[areaMap.length * areaMap[0].length];
-      // Cycles through each element in the 2D areaMap array and copies it to tempArray. 
-      for (int i = 0; i < areaMap.length; i++) {
-          for (int j = 0; j < areaMap[0].length; j++) {
-              tempArray[j + (i * (areaMap[0].length))] = areaMap[i][j];
+      double[] tempArray = new double[temporaryMap.length * temporaryMap[0].length];
+      // Cycles through each element in the 2D temporaryMap array and copies it to tempArray. 
+      for (int i = 0; i < temporaryMap.length; i++) {
+          for (int j = 0; j < temporaryMap[0].length; j++) {
+              tempArray[j + (i * (temporaryMap[0].length))] = temporaryMap[i][j];
 
           }
       }
