@@ -53,8 +53,18 @@ public class Storage {
    * 
    * @param inputMap
    */
-  public void setMap(double[][] inputMap) {
+  public void setInitialMap(double[][] inputMap) {
     initialMap = inputMap;
+    // Also resets the temporary map.
+    temporaryMap = inputMap;
+  }
+  
+  /**
+   * Sets the current state of the temporary map. 
+   * @param inputMap The current state of the map.
+   */
+  public void setTempMap(double[][] inputMap){
+    
     temporaryMap = inputMap;
   }
 
@@ -68,14 +78,7 @@ public class Storage {
     return this.initialMap;
   }
   
-  /**
-   * Sets the current state of the temporary map. 
-   * @param inputMap The current state of the map while the model is running.
-   */
-  public void setTempMap(double[][] inputMap){
-    
-    temporaryMap = inputMap;
-  }
+
   
   /**
    * Gets the current map state.
@@ -111,7 +114,7 @@ public class Storage {
               int value = (int) temporaryMap1D[i];
 
               // Sets the colour of road pixels(which should be valued 1,2,3 or 4 depending on their N/E/S/W facing direction) to black.
-              if (value == 1 | value == 2 | value == 3 | value == 4) {
+              if (value == 1 || value == 2 || value == 3 || value == 4) {
 
                   Color color = new Color(0, 0, 0);
                   pixels[i] = color.getRGB();
@@ -119,7 +122,7 @@ public class Storage {
 
               // Sets the colour of vehicles(which should be valued the value of the road tile they are on + 9) to blue.
               // i.e a north facing road (which has a value of 1) would have the value of 10 if a vehicle was on it.
-              else if (value == 10 | value == 20 | value == 30 | value == 40) {
+              else if (value == 10 | value == 11 | value == 12 | value == 13) {
 
                   Color color = new Color(255, 0, 0);
                   pixels[i] = color.getRGB();

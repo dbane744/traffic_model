@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -127,15 +129,23 @@ public class Main_gui {
         // Places a vehicle in temporaryMap (which is displayed in the panel) if the user left clicks on or near the road.
         if(SwingUtilities.isLeftMouseButton(me)){
           
-          System.out.println(tempMap.length);
+          System.out.println("x= " + x + " y= " + y);
           // Searches 15 spaces to the right of the clicked point for a road.
           for (int i = 0; i < 15; i++) {
-            if(tempMap[x][y + i] == 1){
-              tempMap[x][y + i] = 2; 
+            
+            if(tempMap[x][y + i] <= 4 && tempMap[x][y + i] > 0){
+              // Adds 9 to the road element to signify a vehicle.
+              tempMap[x][y + i] = (tempMap[x][y + i]) + 9; 
+              // Replaces the map in storage with the new map.
+              Storage.getInstance().setTempMap(tempMap);
+              mPanel.repaint();
               break;
             }
           }
         } 
+        
+        
+        //******* DANIEL - make 3 more for loops for left, up and down
         
         // Places a traffic light if the user right clicks near a road.
         else if(SwingUtilities.isRightMouseButton(me)){
@@ -182,6 +192,13 @@ public class Main_gui {
     
     JButton startButton = new JButton("START");
     startButton.setToolTipText("Click to start the model");
+    startButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        // DANIEL LET THE USER PUT THESSE VALUES IN ***********
+        Model model = new Model(300, 3, 10);
+        model.runModel();
+      }
+    });
     cpPanel.add(startButton, "wrap");
     
     // Deals with the pause button.
@@ -218,8 +235,8 @@ public class Main_gui {
     mntmOpen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         try {
-          // Opens a file dialog and stores the inputed data within Storage.
-          Storage.getInstance().setMap(IO.readData());
+          // Opens a file dialog and stores the inputed data within Storage as the initial map - the reset button will reset to this map state.
+          Storage.getInstance().setInitialMap(IO.readData());
           mPanel.repaint();
         } catch (Exception e1) {
           e1.printStackTrace();
@@ -291,10 +308,20 @@ class ModelPanel extends JPanel {
     // If available, paints the area map data stored in Storage as an image.
     Image image = Storage.getInstance().getDataAsImage();
     
-    if(image != null){
+    
+    /*if(image != null){
       // getWidth() and getHeight() (inherited from JPanel) allows the image to fit into a frame that is resized manually by the user.
       g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+      
+    }*/
+    
+    if(image != null){
+      ImageIcon iconImage = new ImageIcon(image);
+      JLabel labelImage = new JLabel(iconImage);
+      this.add(labelImage);
     }
+    
+
   }
 }
 
