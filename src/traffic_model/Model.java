@@ -17,8 +17,8 @@ public class Model extends ModelPanel {
   /**
    * Lists every road tile in the order they are placed.
    */
-  private ArrayList<Road> roadList;
-  private ArrayList<Vehicle> vehicleList;
+  private ArrayList<Road> roadList = new ArrayList<Road>();
+  private ArrayList<Vehicle> vehicleList = new ArrayList<Vehicle>();
 
   
   
@@ -44,10 +44,15 @@ public class Model extends ModelPanel {
     
     Vehicle currentVehicle;
     
-    // Resets the current map state to the initial state. 
-    Storage.getInstance().resetMap();
+    // Finds and stores all the road tiles.
+    listRoad();
     
-    double[][] map = Storage.getInstance().getMap();
+    // Finds and stores all the vehicles in the vehicle list.
+    listVehicles();
+    
+    System.out.println("vehicle list size = " + vehicleList.size());
+    
+    double[][] map = Storage.getInstance().getTempMap();
     
     // The tick loop. 
     for (int i = 0; i < runtime; i++) {
@@ -55,20 +60,20 @@ public class Model extends ModelPanel {
       for (Vehicle vehicle : vehicleList) {
         
 
-        Road moveTo = moveTo(vehicle.getX(), vehicle.getY());
+        Road moveTo = moveTo(vehicle.getY(), vehicle.getX());
         
        // Only moves if the new road tile is an empty road tile (which would be in the range of 1 to 4).
       //**************************************************************** DANIEL : add traffic light logic later
-        if(map[moveTo.getX()][moveTo.getY()] <= 4){
+        if(map[moveTo.getY()][moveTo.getX()] <= 4){
           
           /*
            * Updates the map to the vehicle's new position.
            */
           
           // The current position minuses 9 to represent the loss of the vehicle.
-          map[vehicle.getX()][vehicle.getY()] = (map[vehicle.getX()][vehicle.getY()] - 9);
+          map[vehicle.getY()][vehicle.getX()] = (map[vehicle.getY()][vehicle.getX()] - 9);
           // The new position adds 9 to represent the gain of the vehicle.
-          map[moveTo.getX()][moveTo.getY()] = (map[moveTo.getX()][moveTo.getY()] + 9);
+          map[moveTo.getY()][moveTo.getX()] = (map[moveTo.getY()][moveTo.getX()] + 9);
                   
           /*
            * Updates the vehicle to it's new position. 
@@ -76,6 +81,9 @@ public class Model extends ModelPanel {
           
           vehicle.setX(moveTo.getX());
           vehicle.setY(moveTo.getY());
+          
+          //System.out.println("X#" + vehicle.getX());
+          System.out.println("Y#" + vehicle.getY());
           
           super.repaint();
         }
@@ -96,42 +104,54 @@ public class Model extends ModelPanel {
     int firstRoadX = 0;
     int firstRoadY = 0;
     
+    
+    boolean foundFirst = false;
     // Finds the x and y coordinate of the first road element in the map. 
     for (int i = 0; i < map.length; i++) {
       for (int j = 0; j < map.length; j++) {
         if(map[i][j] != 0){
-          firstRoadX = i;
-          firstRoadY = j;
+          firstRoadY = i;
+          firstRoadX = j;
+          foundFirst = true;
+        }
+        // Breaks if the first road has been found.
+        if(foundFirst){
           break;
         }
+      }
+      if(foundFirst){
+        break;
       }
     }
     
     // Adds the first road element to the list.
-    roadList.add(new Road(firstRoadX, firstRoadY));
+    Road firstTile = new Road(firstRoadY, firstRoadX);
+    roadList.add(firstTile);
     
     // Stores the current x and y coordinates of the current road tile.
     int currentX = 0;
     int currentY = 0;
     
-    // Keeps looping through all road tiles till it reaches the first tile (** THE ROAD NETWORK MUST BE A CONTINUOUS CIRCUIT **)
-    while(currentX != firstRoadX && currentY != firstRoadY){
-      // If this is the first iteration currentX and currentX will be set to the first tile coords (Bypasses the while condition).
+    // Keeps looping through all road tiles until it reaches the first tile (** THE ROAD NETWORK MUST BE A CONTINUOUS CIRCUIT **)
+    while(currentX != firstRoadX || currentY != firstRoadY){
+      // If this is the first iteration currentX and currentY will be set to the first tile coords (Bypasses the while condition).
       if(currentX == 0 && currentY == 0){
         currentX = firstRoadX;
         currentY = firstRoadY;
       }
       
       // Moves to the next tile, stores the tile as a Road object then adds it to the road tile list.
-      Road newRoadTile = moveTo(currentX, currentY);
-      roadList.add(newRoadTile);
-    }
-    
-    for (Road road : roadList) {
-      System.out.println(road.getX() + "   " + road.getY());
+      Road newRoadTile = moveTo(currentY, currentX);
       
+      // Does not add the first tile twice (which will be the last tile found).
+      if(newRoadTile.getX() != firstRoadX || newRoadTile.getY() != firstRoadY){
+      roadList.add(newRoadTile);
+      }
+      
+      // Sets the current x and y to the new values. 
+      currentX = newRoadTile.getX();
+      currentY = newRoadTile.getY();
     }
-    
   }
   
   /**
@@ -140,12 +160,12 @@ public class Model extends ModelPanel {
    * @param currentY The current y position.
    * @return The road tile that is to be moved to(which encapsulates the x and y coordinates).
    */
-  public Road moveTo(int currentX, int currentY){
+  public Road moveTo(int currentY, int currentX){
     
     // Gets the current state of the map.
     double[][] map = Storage.getInstance().getTempMap();
     // Will store the new road tile to move to.
-    Road newRoadTile = new Road(currentX, currentY);
+    Road newRoadTile = new Road(currentY, currentX);
     
     /*
      * Gets the direction the current road tile is currently on
@@ -157,11 +177,13 @@ public class Model extends ModelPanel {
      */
     
     // Gets the current raw value.
-    int currentTileValue = (int) map[currentX][currentY];
+    int currentTileValue = (int) map[currentY][currentX];
+    
     // Will store the actual road type value after vehicle/traffic light checks.
     int currentRoadType;
     
-    if(currentTileValue <= 10 && currentTileValue >=13){
+    // If the tile contains a vehicle.
+    if(currentTileValue >= 10 && currentTileValue <=13){
       currentRoadType = (currentTileValue-9);
     } 
     else if(currentTileValue > 100){
@@ -172,27 +194,27 @@ public class Model extends ModelPanel {
     }
     
     switch (currentRoadType) {
-    // If the road is north facing the new tile will have current x - 1;
-    case 1: newRoadTile.setX(currentX - 1);
+    // If the road is north facing the new tile will have current y - 1;
+    case 1: newRoadTile.setY(currentY - 1);                                     //System.out.println("CASE 1");
     break;
-    // If the road is east facing the new tile will have current y + 1;
-    case 2: newRoadTile.setX(currentY + 1);
+    // If the road is east facing the new tile will have current x + 1;
+    case 2: newRoadTile.setX(currentX + 1);                    //System.out.println("CASE 2");
     break;
-    // If the road is south facing the new tile will have current x + 1;
-    case 3: newRoadTile.setX(currentX + 1);
+    // If the road is south facing the new tile will have current y + 1;
+    case 3: newRoadTile.setY(currentY + 1);            //System.out.println("CASE 3");
     break;
-    // If the road is west facing the new tile will have current y - 1;
-    case 4: newRoadTile.setX(currentY - 1);
+    // If the road is west facing the new tile will have current x - 1;
+    case 4: newRoadTile.setX(currentX - 1);    //System.out.println("CASE 4");
     break;
     
   
-    default: //**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
+    default: System.out.println("DEFAULT");//**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
       break;
     }
     
     // Finds the adjoining road if the current road tile is a corner. 
-    if(map[newRoadTile.getX()][newRoadTile.getY()] == 0){
-      newRoadTile = onCornerFindRoad(currentX, currentY, currentRoadType);
+    if(map[newRoadTile.getY()][newRoadTile.getX()] == 0){
+      newRoadTile = onCornerFindRoad(currentY, currentX, currentRoadType);
     }
     
       return newRoadTile;
@@ -205,34 +227,37 @@ public class Model extends ModelPanel {
    * that have a different road value from the current (Because an adjoining
    * road will have a different direction value).
    * 
-   * @param cornerX The x coordinate of the corner tile.
    * @param cornerY The y coordinate of the corner tile.
+   * @param cornerX The x coordinate of the corner tile.
    * @param currentRoadType An integer value corresponding to the current road type/direction the road is facing.
    * @return The road tile of the adjoining road.
    */
-  public Road onCornerFindRoad(int cornerX, int cornerY, int currentRoadType){
+  public Road onCornerFindRoad(int cornerY, int cornerX, int currentRoadType){
     
     double[][] map = Storage.getInstance().getMap();
-    Road newRoadTile = new Road(cornerX, cornerY);
+    Road newRoadTile = new Road(cornerY, cornerX);
     
-    if(map[cornerX][cornerY] == 0){
       // Searches north of the current tile for another road.
-      if(map[cornerX - 1][cornerY] != 0 && map[cornerX - 1][cornerY] != currentRoadType){
-        newRoadTile.setX(cornerX - 1);
+      if(map[cornerY - 1][cornerX] != 0 && map[cornerY - 1][cornerX] != currentRoadType){
+        newRoadTile.setY(cornerY - 1);
+        System.out.println("1");
       }
       // Searches east of the current tile for another road.
-      else if(map[cornerX][cornerY + 1] != 0 && map[cornerX][cornerY + 1] != currentRoadType){
-        newRoadTile.setX(cornerY + 1);
+      else if(map[cornerY][cornerX + 1] != 0 && map[cornerY][cornerX + 1] != currentRoadType){
+        newRoadTile.setX(cornerX + 1);
+        System.out.println("2");
       }
       // Searches south of the current tile for another road.
-      else if(map[cornerX + 1][cornerY] != 0 && map[cornerX + 1][cornerY] != currentRoadType){
-        newRoadTile.setX(cornerX + 1);
+      else if(map[cornerY + 1][cornerX] != 0 && map[cornerY + 1][cornerX] != currentRoadType){
+        newRoadTile.setY(cornerY + 1);
+        System.out.println("3");
       }
       // Searches west of the current tile for another road.
-      else if(map[cornerX][cornerY - 1] != 0 && map[cornerX][cornerY - 1] != currentRoadType){
-        newRoadTile.setX(cornerY - 1);
+      else if(map[cornerY][cornerX - 1] != 0 && map[cornerY][cornerX - 1] != currentRoadType){
+        newRoadTile.setX(cornerX - 1);
+        System.out.println("4");
       }
-    }
+    
 
     return newRoadTile;
   }
@@ -245,18 +270,19 @@ public class Model extends ModelPanel {
    */
   public void listVehicles(){
     
-    double[][] map = Storage.getInstance().getMap();
+    double[][] map = Storage.getInstance().getTempMap();
     
     // Loops through all the road tiles.
      for (Road road : roadList) {
       
        // Checks if the current road tile contains a vehicle.
-      if (map[road.getX()][road.getY()] == 10 || map[road.getX()][road.getY()] == 11
-              || map[road.getX()][road.getY()] == 12 || map[road.getX()][road.getY()] == 13) {
+      if (map[road.getY()][road.getX()] == 10 || map[road.getY()][road.getX()] == 11
+              || map[road.getY()][road.getX()] == 12 || map[road.getY()][road.getX()] == 13) {
         
         // Creates a new Vehicle and adds it to the list. Uses the position of the current road tile and the locally stored maxSpeed.
-        vehicleList.add(new Vehicle(road.getX(), road.getY(), maxSpeed));
+        vehicleList.add(new Vehicle(road.getY(), road.getX(), maxSpeed));
        }
     }
+
   }
 }

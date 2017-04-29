@@ -1,9 +1,12 @@
 package traffic_model;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Panel;
+import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
+import java.util.ArrayList;
 
 /**
  * Stores large data sets used by the application. Includes map/road network data and statistical results of the model.
@@ -28,6 +31,8 @@ public class Storage {
    * Stores the current state of the model (changes constantly as the model is ran). Can be reset by the user to contain initialMap. 
    */
   private double[][] temporaryMap;
+  
+
 
   
   // Defeats instantiation 
@@ -102,7 +107,7 @@ public class Storage {
    * 
    * @return An Image of initialMap
    */
-  public Image getDataAsImage() {
+  public BufferedImage getDataAsImage() {
       //Only works if there is data stored.
       if (temporaryMap != null) {
           // Copies the data into a 1D array to allow the creation of an Image. 
@@ -147,8 +152,10 @@ public class Storage {
           // Creates a panel for the image to sit on.
           Panel panel = new Panel();
           Image image = panel.createImage(memSource);
+          
+          BufferedImage bufferedImage = imageToBufferedImage(image);
 
-          return image;
+          return bufferedImage;
 
       } else {
 
@@ -176,4 +183,15 @@ public class Storage {
       // Returns the 1D array. 
       return tempArray;
   }
+  
+  // This method turns an image into a buffered image. Code was obtained from http://www.rgagnon.com/javadetails/java-0601.html
+  public BufferedImage imageToBufferedImage(Image im) {
+    
+    BufferedImage bi = new BufferedImage
+       (im.getWidth(null),im.getHeight(null),BufferedImage.TYPE_INT_RGB);
+    Graphics bg = bi.getGraphics();
+    bg.drawImage(im, 0, 0, null);
+    bg.dispose();
+    return bi;
+ }
 }

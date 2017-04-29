@@ -22,7 +22,7 @@ public class Vehicle {
    */
   private int maxSpeed;
   
-  public Vehicle(int startingX, int startingY, int maxSpeed){
+  public Vehicle(int startingY, int startingX, int maxSpeed){
     this.currentX = startingX;
     this.currentY = startingY;
     this.maxSpeed = maxSpeed;

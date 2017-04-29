@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JMenuBar;
@@ -27,6 +28,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
@@ -48,6 +51,7 @@ public class Main_gui {
    * Stores the JFrame.
    */
   private JFrame frame;
+
 
 
   /**
@@ -86,8 +90,8 @@ public class Main_gui {
     frame = new JFrame("Agent-based traffic wave model");
     // Size of entire frame - currently commented out due to using pack() instead. Uncomment this line if manual tweaking is required.
     frame.setBounds(0, 0, 1200, 800);
-    // Sets the frame to fit the preferred size of it's components. 
-    //frame.pack();
+    // Disallows reszing of the frame.
+    frame.setResizable(false);
     // Allows the window to close when the user clicks the top right X.
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     // Sets the layout for the frame's content pane - uses Mig layout.
@@ -99,10 +103,12 @@ public class Main_gui {
     StatisticsPanel sPanel = new StatisticsPanel();
     ModelPanel mPanel = new ModelPanel();
     
+    
     // Inner anonymous class that implements a mouse listener on the model panel.
     // Grabs the location where the mouse was clicked to allow the placement of cars or traffic lights.
     // Left click on or to the side of the road places a car. Right click places a traffic light.
     class MouseAdp extends MouseAdapter{
+      
       public void mouseClicked(MouseEvent me){
         
         // Gets the current instance of temporaryMap in Storage.
@@ -111,10 +117,31 @@ public class Main_gui {
         // Only listens for clicks if there is an image loaded in the panel.
         if(tempMap != null){
         
+        // Gets the current panel size (this can alter as the user is able to resize the frame themselves).   
+        Dimension currentpanelSize = mPanel.getSize();
+        int panelX =  (int)currentpanelSize.getHeight();
+        int panelY = (int)currentpanelSize.getWidth();
+        
+        // Gets the image size.
+        BufferedImage image = Storage.getInstance().getDataAsImage();
+        int imageX = image.getHeight();
+        int imageY = image.getWidth();
+        
+        // Gets the ratio between the image size and the current panel size.
+        double ratio = (double)imageY / (double)panelY;
+        
+          
         // Returns the point that was clicked. And stores the x and y values for further use.
         Point clickedPoint = me.getPoint();
-        int x = (int) clickedPoint.getX();
-        int y = (int) clickedPoint.getY();
+       
+        
+          // The raw x and y values are rescaled to the ratio of the image -
+          // allows the panel/image to be resized while allowing the user to
+          // select a coordinate within the original image.
+
+        int x = (int) (clickedPoint.getX() * ratio);
+        int y = (int) (clickedPoint.getY() * ratio);
+                System.out.println("modx: " + x + "mody: " + y);
         
           /*
            * The next if/else if statements use for loops to search 15 spaces
@@ -129,16 +156,26 @@ public class Main_gui {
         // Places a vehicle in temporaryMap (which is displayed in the panel) if the user left clicks on or near the road.
         if(SwingUtilities.isLeftMouseButton(me)){
           
-          System.out.println("x= " + x + " y= " + y);
+          // Will be true when the first (and only) road tile is found.
+          boolean foundRoad = false;
+         
           // Searches 15 spaces to the right of the clicked point for a road.
           for (int i = 0; i < 15; i++) {
             
-            if(tempMap[x][y + i] <= 4 && tempMap[x][y + i] > 0){
+            System.out.println("x:" + x + "y: " + y);
+            
+            if(tempMap[y][x + i] <= 4 && tempMap[y][x + i] > 0){
               // Adds 9 to the road element to signify a vehicle.
-              tempMap[x][y + i] = (tempMap[x][y + i]) + 9; 
+              tempMap[y][x + i] = (tempMap[y][x + i]) + 9; 
               // Replaces the map in storage with the new map.
               Storage.getInstance().setTempMap(tempMap);
+              System.out.println("HIT A ROAD");
+              foundRoad = true;
               mPanel.repaint();
+            }
+            
+            // Ends the loop if a road tile has been found.
+            if(foundRoad){
               break;
             }
           }
@@ -160,6 +197,9 @@ public class Main_gui {
     }
     
     mPanel.addMouseListener(new MouseAdp());
+    
+
+
     
     frame.add(mPanel, "dock east");
     frame.add(cpPanel);
@@ -238,6 +278,9 @@ public class Main_gui {
           // Opens a file dialog and stores the inputed data within Storage as the initial map - the reset button will reset to this map state.
           Storage.getInstance().setInitialMap(IO.readData());
           mPanel.repaint();
+         
+          
+          
         } catch (Exception e1) {
           e1.printStackTrace();
         }
@@ -306,19 +349,14 @@ class ModelPanel extends JPanel {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     // If available, paints the area map data stored in Storage as an image.
-    Image image = Storage.getInstance().getDataAsImage();
-    
-    
-    /*if(image != null){
-      // getWidth() and getHeight() (inherited from JPanel) allows the image to fit into a frame that is resized manually by the user.
-      g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-      
-    }*/
+    // Casts into a BufferedImage as this is suited to alterting individual pixels.
+    BufferedImage image = Storage.getInstance().getDataAsImage();
     
     if(image != null){
-      ImageIcon iconImage = new ImageIcon(image);
-      JLabel labelImage = new JLabel(iconImage);
-      this.add(labelImage);
+      
+      // getWidth() and getHeight() (inherited from JPanel) allows the image to fit into a frame that is resized manually by the user.
+      g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), null);
+      
     }
     
 

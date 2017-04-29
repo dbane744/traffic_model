@@ -10,7 +10,7 @@ public class Road {
   private int x;
   private int y;
   
-  public Road(int x, int y){
+  public Road(int y, int x){
     this.x = x;
     this.y = y;
   }
@@ -29,5 +29,9 @@ public class Road {
   
   public void setY(int y){
     this.y = y;
+  }
+  
+  public String toString(){
+    return "This road tile has the position: x = " + x + " y = " + y;
   }
 }
