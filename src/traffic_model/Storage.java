@@ -32,6 +32,11 @@ public class Storage {
    */
   private double[][] temporaryMap;
   
+  /**
+   * Is set to true when reset map is called. Tells the model vehicle movement loop to cancel.
+   */
+  private boolean cancelModelLoop = false;
+  
 
 
   
@@ -51,6 +56,22 @@ public class Storage {
     return storage;
   }
   
+  /**
+   * Returns the boolean value of whether to cancel the vehicle move loop.
+   * @return 
+   */
+  public boolean getCancelModelLoop(){
+    return cancelModelLoop;
+  }
+  
+  /**
+   * Sets whether to cancel the vehicle move loop.
+   * @param value
+   */
+  public void setCancelModelLoop(boolean value){
+    cancelModelLoop = value;
+  }
+  
   
   
   /**
@@ -59,9 +80,16 @@ public class Storage {
    * @param inputMap
    */
   public void setInitialMap(double[][] inputMap) {
+    
     initialMap = inputMap;
-    // Also resets the temporary map.
-    temporaryMap = inputMap;
+    
+    temporaryMap = new double[initialMap.length][initialMap[0].length];
+    // Copies the data from initialMap into temporaryMap.
+    for (int i = 0; i < initialMap.length; i++) {
+      for (int j = 0; j < initialMap[0].length; j++) {
+        temporaryMap[i][j] = initialMap[i][j];
+      }
+    }
   }
   
   /**
@@ -98,8 +126,12 @@ public class Storage {
    * Resets the temporary map to the state of the initially loaded initialMap. 
    */
   public void resetMap(){
-    
-    temporaryMap = initialMap;
+    cancelModelLoop = true;
+    for (int i = 0; i < initialMap.length; i++) {
+      for (int j = 0; j < initialMap[0].length; j++) {
+        temporaryMap[i][j] = initialMap[i][j];
+      }
+    }
   }
   
   /**
@@ -133,8 +165,8 @@ public class Storage {
                   pixels[i] = color.getRGB();
               } 
               
-              // Sets the colour of the traffic lights(which should be valued 100) to red.
-              else if (value == 100){
+              // Sets the colour of the traffic lights(which should be valued 100) and the two adjacent tiles(which are valued as 200) to red.
+              else if (value > 100){
                 
                 Color color = new Color(255, 0, 0);
                 pixels[i] = color.getRGB();

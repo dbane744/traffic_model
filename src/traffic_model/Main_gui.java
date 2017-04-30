@@ -138,6 +138,8 @@ public class Main_gui {
     JButton startButton = new JButton("START");
     startButton.setToolTipText("Click to start the model");
     startButton.addActionListener(new ActionListener(){
+      
+      @Override
       public void actionPerformed(ActionEvent e){
         // DANIEL LET THE USER PUT THESSE VALUES IN ***********
         Model model = new Model(300, 3, 10, mPanel);
@@ -156,6 +158,15 @@ public class Main_gui {
     
     JButton resetButton = new JButton("RESET");
     startButton.setToolTipText("Click to stop and reset the model");
+    resetButton.addActionListener(new ActionListener() {
+      
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        
+        Storage.getInstance().resetMap();
+        mPanel.repaint();
+      }
+    });
     cpPanel.add(resetButton);
     
     /*
@@ -261,11 +272,7 @@ class ModelPanel extends JPanel {
       
       // getWidth() and getHeight() (inherited from JPanel) allows the image to fit into a frame that is resized manually by the user.
       g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), null);
-      
-      
     }
-    
-
   }
 }
 

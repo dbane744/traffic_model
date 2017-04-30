@@ -20,7 +20,14 @@ public class Model{
    * Lists every road tile in the order they are placed.
    */
   private ArrayList<Road> roadList = new ArrayList<Road>();
+  /**
+   * Lists every vehicle in the order they are positioned on the road.
+   */
   private ArrayList<Vehicle> vehicleList = new ArrayList<Vehicle>();
+  /**
+   * Lists ever tarffic light in the order they are positioned on the road.
+   */
+  private ArrayList<TrafficLight> lightList = new ArrayList<TrafficLight>();
   /**
    * This stores the model panel to paint to.
    */
@@ -40,7 +47,6 @@ public class Model{
     this.maxSpeed = maxSpeed;
     this.animationSpeed = animationSpeed;
     this.mPanel = mPanel;
-    
   }
   
   /**
@@ -53,12 +59,13 @@ public class Model{
     // Finds and stores all the road tiles.
     listRoad();
     
+    // Stores the last road tile in the network. Is used to prevent a bug
+    // whereby vehicles placed in the last tile will not leave a gap between a
+    // vehicle directly in front.
+    Road lastTile = roadList.get(roadList.size()-1);
+    
     // Finds and stores all the vehicles in the vehicle list.
     listVehicles();
-    
-    System.out.println("vehicle list size = " + vehicleList.size());
-    
-    double[][] map = Storage.getInstance().getTempMap();
     
     // A timer to wait between vehicle movements to allow the user to see the modelling process.
     Timer timer = new Timer();
@@ -67,44 +74,20 @@ public class Model{
       // Stores the number of iterations the model has ran for.
       int iterations = 0;
       
-
-      
       // This will run once at a certain interval defined by the user in 'runtime'.
       @Override
       public void run() {
         
         // Moves each vehicle depending on their current speed. 
         for (Vehicle vehicle : vehicleList) {
-          
-
-          Road moveTo = moveTo(vehicle.getY(), vehicle.getX());
-          
-         // Only moves if the new road tile is an empty road tile (which would be in the range of 1 to 4).
-        //**************************************************************** DANIEL : add traffic light logic later
-          if(map[moveTo.getY()][moveTo.getX()] <= 4){
-            
-            /*
-             * Updates the map to the vehicle's new position.
-             */
-            
-            // The current position minuses 9 to represent the loss of the vehicle.
-            map[vehicle.getY()][vehicle.getX()] = (map[vehicle.getY()][vehicle.getX()] - 9);
-            // The new position adds 9 to represent the gain of the vehicle.
-            map[moveTo.getY()][moveTo.getX()] = (map[moveTo.getY()][moveTo.getX()] + 9);
-                    
-            /*
-             * Updates the vehicle to it's new position. 
-             */
-            
-            vehicle.setX(moveTo.getX());
-            vehicle.setY(moveTo.getY());
-            
-            //System.out.println("X#" + vehicle.getX());
-            System.out.println("Y#" + vehicle.getY());
-            
+          // Will end the loop and cancel the timer if the reset button has been pressed by the user /the temporary map has been reset.
+          if(Storage.getInstance().getCancelModelLoop()){
+            // Resets the boolean within storage to false so the model can be run again.
+            Storage.getInstance().setCancelModelLoop(false);
+            cancel();
+            break;
           }
-          // Repaints the model panel.
-          mPanel.repaint();
+          moveVehicle(vehicle);
         }
         
         iterations++;
@@ -120,76 +103,41 @@ public class Model{
     // First number is the delay of the user pressing the start button and the model starting.
     // The second(more useful) number is the delay between each run().
     // Both are in milliseconds.
-    
-
-
-
-    
-      
-      
-      
   }
   
   /**
-   * Gets an ordered list of each element in the road network. Follows the direction of the road.
-   * Used to get a similarly ranked list of vehicles.
+   * Tries to move the inputed vehicle one road tile. 
+   * @param vehicle The vehicle to move.
    */
-  public void listRoad(){
+  public void moveVehicle(Vehicle vehicle){
     
-    // Stores the current map state.
     double[][] map = Storage.getInstance().getTempMap();
-    // Stores the first road element in the map found. Used as a starting point for storing each road tile. 
-    int firstRoadX = 0;
-    int firstRoadY = 0;
     
+    // The road tile that the vehicle will try to move to.
+    Road nextTile = moveTo(vehicle.getY(), vehicle.getX());
     
-    boolean foundFirst = false;
-    // Finds the x and y coordinate of the first road element in the map. 
-    for (int i = 0; i < map.length; i++) {
-      for (int j = 0; j < map.length; j++) {
-        if(map[i][j] != 0){
-          firstRoadY = i;
-          firstRoadX = j;
-          foundFirst = true;
-        }
-        // Breaks if the first road has been found.
-        if(foundFirst){
-          break;
-        }
-      }
-      if(foundFirst){
-        break;
-      }
-    }
-    
-    // Adds the first road element to the list.
-    Road firstTile = new Road(firstRoadY, firstRoadX);
-    roadList.add(firstTile);
-    
-    // Stores the current x and y coordinates of the current road tile.
-    int currentX = 0;
-    int currentY = 0;
-    
-    // Keeps looping through all road tiles until it reaches the first tile (** THE ROAD NETWORK MUST BE A CONTINUOUS CIRCUIT **)
-    while(currentX != firstRoadX || currentY != firstRoadY){
-      // If this is the first iteration currentX and currentY will be set to the first tile coords (Bypasses the while condition).
-      if(currentX == 0 && currentY == 0){
-        currentX = firstRoadX;
-        currentY = firstRoadY;
-      }
+   // Only moves if the new road tile is an empty road tile (which would be in the range of 1 to 4).
+  //**************************************************************** DANIEL : add traffic light logic later
+    if(map[nextTile.getY()][nextTile.getX()] <= 4){
       
-      // Moves to the next tile, stores the tile as a Road object then adds it to the road tile list.
-      Road newRoadTile = moveTo(currentY, currentX);
+      /*
+       * Updates the map to the vehicle's new position.
+       */
       
-      // Does not add the first tile twice (which will be the last tile found).
-      if(newRoadTile.getX() != firstRoadX || newRoadTile.getY() != firstRoadY){
-      roadList.add(newRoadTile);
-      }
+      // The current position minuses 9 to represent the loss of the vehicle.
+      map[vehicle.getY()][vehicle.getX()] = (map[vehicle.getY()][vehicle.getX()] - 9);
+      // The new position adds 9 to represent the gain of the vehicle.
+      map[nextTile.getY()][nextTile.getX()] = (map[nextTile.getY()][nextTile.getX()] + 9);
+              
+      /*
+       * Updates the vehicle to it's new position. 
+       */
       
-      // Sets the current x and y to the new values. 
-      currentX = newRoadTile.getX();
-      currentY = newRoadTile.getY();
-    }
+      vehicle.setX(nextTile.getX());
+      vehicle.setY(nextTile.getY());
+    } 
+    // Repaints the model panel.
+    mPanel.repaint();
   }
   
   /**
@@ -250,8 +198,7 @@ public class Model{
   /**
    * Finds and returns the road type of the inputed road value (Road type being
    * the direction the road is facing i.e north = 1, east = 2, south = 3, west =
-   * 4). The method deals with the fact other overlapping objects such as
-   * vehicles may have altered the road value.
+   * 4). Filters out any overlapping objects such as vehicles.
    * 
    * @return A value in the range of 1-4 corresponding to the inputed tile's directional road value.
    */
@@ -321,8 +268,70 @@ public class Model{
   }
   
   /**
+   * Gets an ordered list of each element in the road network. Follows the direction of the road.
+   * Used to get a similarly ranked list of vehicles.
+   */
+  public void listRoad(){
+    
+    // Stores the current map state.
+    double[][] map = Storage.getInstance().getTempMap();
+    // Stores the first road element in the map found. Used as a starting point for storing each road tile. 
+    int firstRoadX = 0;
+    int firstRoadY = 0;
+    
+    
+    boolean foundFirst = false;
+    // Finds the x and y coordinate of the first road element in the map. 
+    for (int i = 0; i < map.length; i++) {
+      for (int j = 0; j < map.length; j++) {
+        if(map[i][j] != 0){
+          firstRoadY = i;
+          firstRoadX = j;
+          foundFirst = true;
+        }
+        // Breaks if the first road has been found.
+        if(foundFirst){
+          break;
+        }
+      }
+      if(foundFirst){
+        break;
+      }
+    }
+    
+    // Adds the first road element to the list.
+    Road firstTile = new Road(firstRoadY, firstRoadX);
+    roadList.add(firstTile);
+    
+    // Stores the current x and y coordinates of the current road tile.
+    int currentX = 0;
+    int currentY = 0;
+    
+    // Keeps looping through all road tiles until it reaches the first tile (** THE ROAD NETWORK MUST BE A CONTINUOUS CIRCUIT **)
+    while(currentX != firstRoadX || currentY != firstRoadY){
+      // If this is the first iteration currentX and currentY will be set to the first tile coords (Bypasses the while condition).
+      if(currentX == 0 && currentY == 0){
+        currentX = firstRoadX;
+        currentY = firstRoadY;
+      }
+      
+      // Moves to the next tile, stores the tile as a Road object then adds it to the road tile list.
+      Road newRoadTile = moveTo(currentY, currentX);
+      
+      // Does not add the first tile twice (which will be the last tile found).
+      if(newRoadTile.getX() != firstRoadX || newRoadTile.getY() != firstRoadY){
+      roadList.add(newRoadTile);
+      }
+      
+      // Sets the current x and y to the new values. 
+      currentX = newRoadTile.getX();
+      currentY = newRoadTile.getY();
+    }
+  }
+  
+  /**
    * Using the list of road tiles, this method will generate a list of all
-   * vehicles ordered by their position on the road. It utilises addVehicle()
+   * vehicles ordered by their position on the road. It makes a new Vehicle()
    * whenever it finds a road tile of 10,11,12 or 13 (tiles that signify there
    * is vehicle on it).
    */
@@ -342,5 +351,25 @@ public class Model{
        }
     }
 
+  }
+  
+  /**
+   * Using the list of road tiles, generates a list of all the traffic lights ordered by their position on the road.
+   * Makes a TrafficLight()  whenever it finds a tile over the value of 100.
+   */
+  public void listTrafficLights(){
+    
+    double[][] map = Storage.getInstance().getTempMap();
+    
+    // Loops through all the road tiles.
+    for (Road road : roadList) {
+      
+      // Checks if the current road tile contains a traffic light.
+      if(map[road.getY()][road.getY()] > 100){
+        // Creates a new traffic light and adds it to the list using the current road position. 
+        lightList.add(new TrafficLight(road.getY(), road.getX()));
+      }
+    }
+    
   }
 }
