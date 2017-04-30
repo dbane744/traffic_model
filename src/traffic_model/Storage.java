@@ -127,16 +127,16 @@ public class Storage {
 
               // Sets the colour of vehicles(which should be valued the value of the road tile they are on + 9) to blue.
               // i.e a north facing road (which has a value of 1) would have the value of 10 if a vehicle was on it.
-              else if (value == 10 | value == 11 | value == 12 | value == 13) {
+              else if (value == 10 || value == 11 || value == 12 || value == 13) {
 
-                  Color color = new Color(255, 0, 0);
+                  Color color = new Color(0, 0, 255);
                   pixels[i] = color.getRGB();
               } 
               
               // Sets the colour of the traffic lights(which should be valued 100) to red.
               else if (value == 100){
                 
-                Color color = new Color(0, 0, 255);
+                Color color = new Color(255, 0, 0);
                 pixels[i] = color.getRGB();
               } else {
                   // Sets every other pixel (0 / empty spaces) to white.
