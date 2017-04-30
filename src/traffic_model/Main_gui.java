@@ -116,7 +116,7 @@ public class Main_gui {
     
     
     // Layout manager for the control panel. Second paramter = rows third paraemter = columns.
-    cpPanel.setLayout(new MigLayout("","[][]", "50[]150[]20[]20[]"));
+    cpPanel.setLayout(new MigLayout("","[][]", "50[]50[]20[]20[]"));
     
     // Deals with the time/tick text box.
     
@@ -167,7 +167,21 @@ public class Main_gui {
         mPanel.repaint();
       }
     });
-    cpPanel.add(resetButton);
+    cpPanel.add(resetButton, "wrap");
+    
+    // Deals with the invert colours button.
+    
+    JButton invertButton = new JButton("Invert Colours");
+    invertButton.setToolTipText("Invert the background and road colours");
+    invertButton.addActionListener(new ActionListener() {
+      
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        Storage.getInstance().invertColours();
+        mPanel.repaint();
+      }
+    });
+    cpPanel.add(invertButton);
     
     /*
      * Deals with the menus.

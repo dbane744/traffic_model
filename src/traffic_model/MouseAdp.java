@@ -79,9 +79,9 @@ public class MouseAdp extends MouseAdapter{
     
     // Places a traffic light if the user right clicks near a road.
     else if(SwingUtilities.isRightMouseButton(me)){
-      
+
       if(tempMap[y][x] <= 4 && tempMap[y][x] > 0) {
-        // Adds 100 to the road element to signify a vehicle.
+        // Adds 100 to the road element to signify a traffic light.
         tempMap[y][x] = (tempMap[y][x]) + 100;
         
         // If the traffic light is on a north or south road tiles will be altered for painting to the east and west.

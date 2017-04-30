@@ -56,13 +56,17 @@ public class Model{
     
     Vehicle currentVehicle;
     
+    /*
+     * The list methods must be called in this order to work correctly! Traffic
+     * lights turn themselves off after being found and created to allow
+     * listRoad() to function.
+     */
+    
+    // Finds and stores all the traffic lights.
+    listTrafficLights();
+    
     // Finds and stores all the road tiles.
     listRoad();
-    
-    // Stores the last road tile in the network. Is used to prevent a bug
-    // whereby vehicles placed in the last tile will not leave a gap between a
-    // vehicle directly in front.
-    Road lastTile = roadList.get(roadList.size()-1);
     
     // Finds and stores all the vehicles in the vehicle list.
     listVehicles();
@@ -80,6 +84,7 @@ public class Model{
         
         // Moves each vehicle depending on their current speed. 
         for (Vehicle vehicle : vehicleList) {
+          
           // Will end the loop and cancel the timer if the reset button has been pressed by the user /the temporary map has been reset.
           if(Storage.getInstance().getCancelModelLoop()){
             // Resets the boolean within storage to false so the model can be run again.
@@ -90,14 +95,18 @@ public class Model{
           moveVehicle(vehicle);
         }
         
+        for(TrafficLight light : lightList){
+          light.tick();
+        }
+        
+        
+        
         iterations++;
         
         // Ends the model when the number of runtime iterations is reached.
         if(iterations == runtime){
           cancel();
         }
-        
-        
       }
     }, 100, 50);
     // First number is the delay of the user pressing the start button and the model starting.
@@ -168,6 +177,7 @@ public class Model{
     // Stores the actual road type value after potential vehicle/traffic light removal.
     int currentRoadType = findRoadType(currentTileValue);
     
+    // Finds the new tile to move to. 
     switch (currentRoadType) {
     // If the road is north facing the new tile will have current y - 1;
     case 1: newRoadTile.setY(currentY - 1);                                     //System.out.println("CASE 1");
@@ -182,8 +192,7 @@ public class Model{
     case 4: newRoadTile.setX(currentX - 1);    //System.out.println("CASE 4");
     break;
     
-  
-    default: System.out.println("DEFAULT");//**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
+    default: System.out.println("DEFAULT   y= " + currentRoadType);//**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
       break;
     }
     
@@ -211,9 +220,9 @@ public class Model{
     if(rawRoadValue >= 10 && rawRoadValue <=13){
       actualRoadValue = (rawRoadValue-9);
     } 
-    // If the tile contains a traffic light. 
+    // If the tile contains a traffic light. Subtracts 109 because traffic light = 100 and vehicle = 9.
     else if(rawRoadValue > 100){
-      actualRoadValue = (rawRoadValue - 100);
+      actualRoadValue = (rawRoadValue - 109);
     } else{
       // This happens when the current tile value was already in the range of 1 - 4.
       actualRoadValue = rawRoadValue;
@@ -284,7 +293,9 @@ public class Model{
     // Finds the x and y coordinate of the first road element in the map. 
     for (int i = 0; i < map.length; i++) {
       for (int j = 0; j < map.length; j++) {
-        if(map[i][j] != 0){
+        // Searches for the first road element - excludes the painted tiles that
+        // are valued 200 adjacent to traffic lights for cosmetic purposes.
+        if (map[i][j] != 0 && map[i][j] < 200) {
           firstRoadY = i;
           firstRoadX = j;
           foundFirst = true;
@@ -361,15 +372,17 @@ public class Model{
     
     double[][] map = Storage.getInstance().getTempMap();
     
-    // Loops through all the road tiles.
-    for (Road road : roadList) {
+    // Loops through all the map tiles to locate the traffic lights.
+   for (int i = 0; i < map.length; i++) {
+    for (int j = 0; j < map.length; j++) {
       
       // Checks if the current road tile contains a traffic light.
-      if(map[road.getY()][road.getY()] > 100){
-        // Creates a new traffic light and adds it to the list using the current road position. 
-        lightList.add(new TrafficLight(road.getY(), road.getX()));
+      if(map[i][j] > 100 && map[i][j] <= 104){
+        // Creates a new traffic light and adds it to the list using the current map position. 
+        lightList.add(new TrafficLight(i, j, 10));
+        //--------------------DANIEL - THE USER SHOULD INPUT THE LENGTH OF THE RED LIGHT
       }
     }
-    
+  }
   }
 }

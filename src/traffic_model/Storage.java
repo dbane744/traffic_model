@@ -36,6 +36,10 @@ public class Storage {
    * Is set to true when reset map is called. Tells the model vehicle movement loop to cancel.
    */
   private boolean cancelModelLoop = false;
+  /**
+   * If true, inverts the background and road colours.
+   */
+  private boolean invertColours;
   
 
 
@@ -151,16 +155,22 @@ public class Storage {
               int value = (int) temporaryMap1D[i];
 
               // Sets the colour of road pixels(which should be valued 1,2,3 or 4 depending on their N/E/S/W facing direction) to black.
+              // If invert colour is true the road will be white instead.
               if (value == 1 || value == 2 || value == 3 || value == 4) {
-
-                  Color color = new Color(0, 0, 0);
+                Color color;
+                  if(!invertColours){
+                    color = new Color(0, 0, 0);
+                  } else{
+                    color = new Color(255, 255, 255);
+                  }
+                  
                   pixels[i] = color.getRGB();
               }
 
               // Sets the colour of vehicles(which should be valued the value of the road tile they are on + 9) to blue.
               // i.e a north facing road (which has a value of 1) would have the value of 10 if a vehicle was on it.
               else if (value == 10 || value == 11 || value == 12 || value == 13) {
-
+              
                   Color color = new Color(0, 0, 255);
                   pixels[i] = color.getRGB();
               } 
@@ -171,8 +181,14 @@ public class Storage {
                 Color color = new Color(255, 0, 0);
                 pixels[i] = color.getRGB();
               } else {
-                  // Sets every other pixel (0 / empty spaces) to white.
-                  Color color = new Color(255, 255, 255);
+                  Color color;
+                  
+                  if(!invertColours){
+                    // Sets every other pixel (0 / empty spaces) to white. If invert colours is true it they will be set to black.
+                    color = new Color(255, 255, 255);
+                  } else{
+                    color = new Color(0, 0, 0);
+                  }
                   pixels[i] = color.getRGB();
               }
           }
@@ -226,4 +242,11 @@ public class Storage {
     bg.dispose();
     return bi;
  }
+  
+  /**
+   * Toggles the invert colours boolean.
+   */
+  public void invertColours(){
+    invertColours = !invertColours;
+  }
 }
