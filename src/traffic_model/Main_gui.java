@@ -21,8 +21,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -30,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
@@ -115,7 +122,7 @@ public class Main_gui {
     
     
     // Layout manager for the control panel. Second paramter = rows third paraemter = columns.
-    cpPanel.setLayout(new MigLayout("","[][]", "50[]50[]20[]20[]"));
+    cpPanel.setLayout(new MigLayout("","50[][]", "50[]10[]20[]20[]"));
     
     // Deals with the time/tick text box.
     
@@ -123,14 +130,38 @@ public class Main_gui {
     JLabel timeLabel = new JLabel("Number of ticks to run for: ");
     cpPanel.add(timeLabel);
     
-    // Text box user will enter into.
-    // timeField sets the number of ticks the model will run for. 
-    JFormattedTextField timeField = new JFormattedTextField();
-    // Initial value of the text field. 
-    timeField.setValue(new Double(100));
-    // Width of the text field
-    timeField.setColumns(5);
-    cpPanel.add(timeField, "wrap");
+    // JSpinner that will hold the number of ticks to run for.
+
+    // Creates the model that will hold the numbers that can be spinned. First
+    // number = deafult value. Second = min. Third = max. Fourth = increment.
+    SpinnerNumberModel model = new SpinnerNumberModel(500, 10, 100000, 100);
+    // Creates spinner.
+    JSpinner spinner = new JSpinner(model);
+    // Adds spinner to cpPanel
+    cpPanel.add(spinner, "wrap");
+    
+    
+    // Text label
+    JLabel animationSpeedLabel = new JLabel("Animation speed: ");
+    cpPanel.add(animationSpeedLabel);
+    
+    // Creates the animation slider.
+    // Slider min: 1, max:20, default value:10. 
+    JSlider slider = new JSlider(1, 60, 30);
+    slider.setPaintTicks(true);
+    slider.setMajorTickSpacing(10);
+    slider.setPaintTicks(true);
+    
+    // Cerates the slider label table.
+    // This displays JLabel text on the slider to show the slow end and the fast end.
+    Hashtable table = new Hashtable();
+    table.put(new Integer(60), new JLabel("Slow"));
+    table.put(new Integer(1), new JLabel("Fast"));
+    slider.setLabelTable(table);
+    slider.setPaintLabels(true);
+    
+    // Adds the slider to the cpPanel.
+    cpPanel.add(slider, "wrap");
     
     // Deals with the start button.
     
@@ -141,23 +172,35 @@ public class Main_gui {
       @Override
       public void actionPerformed(ActionEvent e){
 
-        // DANIEL LET THE USER PUT THESSE VALUES IN ***********
-        Model model = new Model(500, 3, 10, mPanel);
+        // This is the model that will run.
+        Model model = new Model((int)spinner.getValue(), 3, slider.getValue(), mPanel);
+        // Sets the cancel model loop to false in case the user has pressed reset or stop before running the model.
+        Storage.getInstance().setCancelModelLoop(false);
+        // Runs the model.
         model.runModel();
       }
     });
     cpPanel.add(startButton, "wrap");
     
-    // Deals with the pause button.
-    
-    JButton pauseButton = new JButton("PAUSE");
-    startButton.setToolTipText("Click to pause the model");
-    cpPanel.add(pauseButton, "wrap");
-    
     // Deals with the stop button.
     
+    JButton stopButton = new JButton("STOP");
+    stopButton.setToolTipText("Click to stop the model");
+    stopButton.addActionListener(new ActionListener() {
+      
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        
+        // Stops currently running model. 
+        Storage.getInstance().setCancelModelLoop(true);
+      }
+    });
+    cpPanel.add(stopButton, "wrap");
+    
+    // Deals with the reset button.
+    
     JButton resetButton = new JButton("RESET");
-    startButton.setToolTipText("Click to stop and reset the model");
+    resetButton.setToolTipText("Click to stop and reset the model");
     resetButton.addActionListener(new ActionListener() {
       
       @Override
@@ -172,15 +215,21 @@ public class Main_gui {
     // Deals with the auto add vehicles button.
     
     JButton autoVehiclesButton = new JButton("Auto add vehicles");
-    autoVehiclesButton.setToolTipText("Automatically add a vehicle every 3 road tiles.");
+    autoVehiclesButton.setToolTipText("Automatically add a vehicle every 6 road tiles. Press multiple times for more vehicles.");
     autoVehiclesButton.addActionListener(new ActionListener() {
       
       @Override
       public void actionPerformed(ActionEvent e) {
         
-        Model model = new Model(500, 3, 10, mPanel);
+        if(Storage.getInstance().getTempMap() != null){
+          // Creates a dummy model - this is only created to access access
+          // listRoad() and autoAddVehicles() - this instance of the model will
+          // not be run.
+          Model model = new Model(500, 3, 10, mPanel);
+          // Adds a vehicle every six spaces. The button can be pressed multiple times to add more vehicles.
         model.autoAddVehicles();
         mPanel.repaint();
+        }
       }
     });
     cpPanel.add(autoVehiclesButton);
@@ -273,7 +322,6 @@ public class Main_gui {
     mnHelp.add(mntmAbout);
   }
 }
-
 
 /**
  * Encapsulates the image/model panel within the gui.

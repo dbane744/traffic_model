@@ -126,7 +126,7 @@ public class Model{
           cancel();
         }
       }
-    }, 100, 50);
+    }, 100, (long) animationSpeed);
     // First number is the delay of the user pressing the start button and the model starting.
     // The second(more useful) number is the delay between each run().
     // Both are in milliseconds.
@@ -409,17 +409,18 @@ public class Model{
   }
   
   /**
-   * Automatically adds a vehicle in every 3 spaces of the road network. Skips over traffic lights.
+   * Automatically adds a vehicle in every 6 spaces of the road network. Skips over traffic lights.
+   * Can be pressed multiple times to add more vehicles.
    */
   public void autoAddVehicles(){
     listRoad();
     double[][] map = Storage.getInstance().getTempMap();
-    // When this int hits 3 it will allow the for loop to place a vehicle. It then resets to 0.
+    // When this int hits 6 it will allow the for loop to place a vehicle. It then resets to 0.
     int iteration = 0;
     
     for (Road roadTile : roadList) {
       
-      if(iteration == 3){
+      if(iteration == 6){
         // Ensures there is no traffic light or vehicle currently present on the tile.
         if(map[roadTile.getY()][roadTile.getX()] > 0 && map[roadTile.getY()][roadTile.getX()] <= 4){
           // Adds the vehicle
