@@ -51,8 +51,7 @@ public class Main_gui {
    * Stores the JFrame.
    */
   private JFrame frame;
-
-
+  
 
   /**
    * Launch the application.
@@ -141,8 +140,9 @@ public class Main_gui {
       
       @Override
       public void actionPerformed(ActionEvent e){
+
         // DANIEL LET THE USER PUT THESSE VALUES IN ***********
-        Model model = new Model(300, 3, 10, mPanel);
+        Model model = new Model(500, 3, 10, mPanel);
         model.runModel();
       }
     });
@@ -168,6 +168,22 @@ public class Main_gui {
       }
     });
     cpPanel.add(resetButton, "wrap");
+    
+    // Deals with the auto add vehicles button.
+    
+    JButton autoVehiclesButton = new JButton("Auto add vehicles");
+    autoVehiclesButton.setToolTipText("Automatically add a vehicle every 3 road tiles.");
+    autoVehiclesButton.addActionListener(new ActionListener() {
+      
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        
+        Model model = new Model(500, 3, 10, mPanel);
+        model.autoAddVehicles();
+        mPanel.repaint();
+      }
+    });
+    cpPanel.add(autoVehiclesButton);
     
     // Deals with the invert colours button.
     

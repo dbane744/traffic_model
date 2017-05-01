@@ -50,6 +50,14 @@ public class Model{
   }
   
   /**
+   * Returns the traffic light list.
+   * @return List of traffic lights.
+   */
+  public ArrayList<TrafficLight> getLightList(){
+    return lightList;
+  }
+  
+  /**
    * Runs the model.
    */
   public void runModel(){
@@ -105,6 +113,16 @@ public class Model{
         
         // Ends the model when the number of runtime iterations is reached.
         if(iterations == runtime){
+          
+          // The traffic light values in the stored
+          // temporary map are reset to +100 to allow the identification of the
+          // lights in further runs of the model using the same data.
+          
+            for (TrafficLight light : lightList){
+              light.resetLight();
+            }
+          
+          
           cancel();
         }
       }
@@ -192,7 +210,7 @@ public class Model{
     case 4: newRoadTile.setX(currentX - 1);    //System.out.println("CASE 4");
     break;
     
-    default: System.out.println("DEFAULT   y= " + currentRoadType);//**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
+    default: System.out.println("DEFAULT   current road type= " + currentRoadType);//**** DANIEL MAKE AND THROW YOUR OWN EXCPETION
       break;
     }
     
@@ -220,8 +238,12 @@ public class Model{
     if(rawRoadValue >= 10 && rawRoadValue <=13){
       actualRoadValue = (rawRoadValue-9);
     } 
-    // If the tile contains a traffic light. Subtracts 109 because traffic light = 100 and vehicle = 9.
-    else if(rawRoadValue > 100){
+    // If the tile contains a traffic light and no vehicle.
+    else if(rawRoadValue > 100 && rawRoadValue <=104){
+      actualRoadValue = (rawRoadValue - 100);
+    } 
+    // If the current tile contains a traffic light and a vehicle.
+    else if(rawRoadValue >104){
       actualRoadValue = (rawRoadValue - 109);
     } else{
       // This happens when the current tile value was already in the range of 1 - 4.
@@ -379,10 +401,35 @@ public class Model{
       // Checks if the current road tile contains a traffic light.
       if(map[i][j] > 100 && map[i][j] <= 104){
         // Creates a new traffic light and adds it to the list using the current map position. 
-        lightList.add(new TrafficLight(i, j, 10));
+        lightList.add(new TrafficLight(i, j, 40));
         //--------------------DANIEL - THE USER SHOULD INPUT THE LENGTH OF THE RED LIGHT
       }
     }
   }
+  }
+  
+  /**
+   * Automatically adds a vehicle in every 3 spaces of the road network. Skips over traffic lights.
+   */
+  public void autoAddVehicles(){
+    listRoad();
+    double[][] map = Storage.getInstance().getTempMap();
+    // When this int hits 3 it will allow the for loop to place a vehicle. It then resets to 0.
+    int iteration = 0;
+    
+    for (Road roadTile : roadList) {
+      
+      if(iteration == 3){
+        // Ensures there is no traffic light or vehicle currently present on the tile.
+        if(map[roadTile.getY()][roadTile.getX()] > 0 && map[roadTile.getY()][roadTile.getX()] <= 4){
+          // Adds the vehicle
+          map[roadTile.getY()][roadTile.getX()] = map[roadTile.getY()][roadTile.getX()] + 9;
+          // Resets the iteration.
+          iteration = 0;
+        } 
+      } else{
+        iteration++;
+      }
+    }
   }
 }
