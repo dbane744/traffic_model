@@ -40,6 +40,14 @@ public class Storage {
    * If true, inverts the background and road colours.
    */
   private boolean invertColours;
+  /**
+   * Stores the number of vehicles in the current temporay map.
+   */
+  private int numOfVehicles;
+  /**
+   * Stores whether the data is currently being altered (the model is running).
+   */
+  private boolean runtime = false;
   
 
 
@@ -248,5 +256,40 @@ public class Storage {
    */
   public void invertColours(){
     invertColours = !invertColours;
+  }
+  
+  /**
+   * Sets the number of vehicles in the currently stored temporary map.
+   * @return
+   */
+  public void setNumOfVehicles(int num){
+    
+    numOfVehicles = num;
+  }
+  
+  /**
+   * Gets the number of vehicles in the currently stored temporary map.
+   * @return
+   */
+  public int getNumOfVehicles(){
+    
+    return numOfVehicles;
+  }
+  
+  /**
+   * Sets whether the stored data is undergoing alteration (the model is running).
+   */
+  public void setRuntime(boolean input){
+    
+    runtime = input;
+  }
+  
+  /**
+   * Gets the runtime state.
+   * @return Boolean value.
+   */
+  public boolean getRuntime(){
+    
+    return runtime;
   }
 }

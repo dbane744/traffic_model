@@ -33,6 +33,11 @@ public class Model{
    */
   private JPanel mPanel;
   
+  /**
+   * The number of ticks the red light on the traffic lights should stay on for.
+   */
+  private int redLightLength;
+  
   
   /**
    * 
@@ -40,13 +45,14 @@ public class Model{
    * @param maxSpeed The max number of spaces a vehicle can travel at max speed.
    * @param animationSpeed The speed in which each tick occurs in real-time.
    */
-  public Model(int runtime, int maxSpeed, double animationSpeed, JPanel mPanel){
+  public Model(int runtime, int maxSpeed, double animationSpeed, int redLightLength, JPanel mPanel){
     
     //Stores the arguments locally. 
     this.runtime = runtime;
     this.maxSpeed = maxSpeed;
     this.animationSpeed = animationSpeed;
     this.mPanel = mPanel;
+    this.redLightLength = redLightLength;
   }
   
   /**
@@ -90,6 +96,10 @@ public class Model{
       @Override
       public void run() {
         
+        // Sets the runtime to be true in storage which is then used to disable
+        // features that would break the model if used during runtime.
+        Storage.getInstance().setRuntime(true);
+
         // Moves each vehicle depending on their current speed. 
         for (Vehicle vehicle : vehicleList) {
           
@@ -97,7 +107,15 @@ public class Model{
           if(Storage.getInstance().getCancelModelLoop()){
             // Resets the boolean within storage to false so the model can be run again.
             Storage.getInstance().setCancelModelLoop(false);
+            
+            // Resets the traffic light to on.
+            for (TrafficLight light : lightList){
+              light.resetLight();
+              mPanel.repaint();
+            }
             cancel();
+            // Resets disabled features.
+            Storage.getInstance().setRuntime(false);
             break;
           }
           moveVehicle(vehicle);
@@ -120,10 +138,13 @@ public class Model{
           
             for (TrafficLight light : lightList){
               light.resetLight();
+              mPanel.repaint();
             }
           
           
           cancel();
+          // Resets disabled features.
+          Storage.getInstance().setRuntime(false);
         }
       }
     }, 100, (long) animationSpeed);
@@ -276,22 +297,18 @@ public class Model{
     // Searches north of the current tile for another road.
       if(map[cornerY - 1][cornerX] != 0 && findRoadType((int)map[cornerY - 1][cornerX]) != currentRoadType){
         newRoadTile.setY(cornerY - 1);
-        System.out.println("1");
       }
       // Searches east of the current tile for another road.
       else if(map[cornerY][cornerX + 1] != 0 && findRoadType((int)map[cornerY][cornerX + 1]) != currentRoadType){
         newRoadTile.setX(cornerX + 1);
-        System.out.println("2");
       }
       // Searches south of the current tile for another road.
       else if(map[cornerY + 1][cornerX] != 0 && findRoadType((int)map[cornerY + 1][cornerX]) != currentRoadType){
         newRoadTile.setY(cornerY + 1);
-        System.out.println("3");
       }
       // Searches west of the current tile for another road.
       else if(map[cornerY][cornerX - 1] != 0 && findRoadType((int)map[cornerY][cornerX - 1]) != currentRoadType){
         newRoadTile.setX(cornerX - 1);
-        System.out.println("4");
       }
     
 
@@ -383,7 +400,8 @@ public class Model{
         vehicleList.add(new Vehicle(road.getY(), road.getX(), maxSpeed));
        }
     }
-
+     // Stores the number of vehicles in Storage so it can be accessed by the gui.
+    Storage.getInstance().setNumOfVehicles(vehicleList.size());
   }
   
   /**
@@ -401,7 +419,7 @@ public class Model{
       // Checks if the current road tile contains a traffic light.
       if(map[i][j] > 100 && map[i][j] <= 104){
         // Creates a new traffic light and adds it to the list using the current map position. 
-        lightList.add(new TrafficLight(i, j, 40));
+        lightList.add(new TrafficLight(i, j, redLightLength));
         //--------------------DANIEL - THE USER SHOULD INPUT THE LENGTH OF THE RED LIGHT
       }
     }

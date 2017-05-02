@@ -29,6 +29,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -39,7 +41,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
+
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
@@ -120,25 +125,34 @@ public class Main_gui {
      * Deals with components within the control panel.
      */
     
-    
-    // Layout manager for the control panel. Second paramter = rows third paraemter = columns.
-    cpPanel.setLayout(new MigLayout("","50[][]", "50[]10[]20[]20[]"));
+    // Layout manager for the control panel. Second parameter = rows third parameter = columns.
+    cpPanel.setLayout(new MigLayout("","50[][]", "20[]10[]20[]20[]"));
     
     // Deals with the time/tick text box.
     
-    // Text label
-    JLabel timeLabel = new JLabel("Number of ticks to run for: ");
+    // Time spinner text label
+    JLabel timeLabel = new JLabel("Number of ticks to run for : ");
     cpPanel.add(timeLabel);
     
     // JSpinner that will hold the number of ticks to run for.
 
     // Creates the model that will hold the numbers that can be spinned. First
-    // number = deafult value. Second = min. Third = max. Fourth = increment.
+    // number = default value. Second = min. Third = max. Fourth = increment.
     SpinnerNumberModel model = new SpinnerNumberModel(500, 10, 100000, 100);
     // Creates spinner.
-    JSpinner spinner = new JSpinner(model);
+    JSpinner tickSpinner = new JSpinner(model);
     // Adds spinner to cpPanel
-    cpPanel.add(spinner, "wrap");
+    cpPanel.add(tickSpinner, "wrap");
+    
+    // Light spinner text label
+    JLabel lightLabel = new JLabel("Number of ticks red lights will stay on for : ");
+    cpPanel.add(lightLabel);
+    
+    // JSpinner that will hold the red light duration for the traffic lights.
+    
+    SpinnerNumberModel lightModel = new SpinnerNumberModel(50, 10, 200, 10);
+    JSpinner lightSpinner = new JSpinner(lightModel);
+    cpPanel.add(lightSpinner, "wrap");
     
     
     // Text label
@@ -146,7 +160,7 @@ public class Main_gui {
     cpPanel.add(animationSpeedLabel);
     
     // Creates the animation slider.
-    // Slider min: 1, max:20, default value:10. 
+    // Slider min: 1, max:60, default value:30. 
     JSlider slider = new JSlider(1, 60, 30);
     slider.setPaintTicks(true);
     slider.setMajorTickSpacing(10);
@@ -170,14 +184,21 @@ public class Main_gui {
     startButton.addActionListener(new ActionListener(){
       
       @Override
-      public void actionPerformed(ActionEvent e){
-
-        // This is the model that will run.
-        Model model = new Model((int)spinner.getValue(), 3, slider.getValue(), mPanel);
-        // Sets the cancel model loop to false in case the user has pressed reset or stop before running the model.
-        Storage.getInstance().setCancelModelLoop(false);
-        // Runs the model.
-        model.runModel();
+      public void actionPerformed(ActionEvent e) {
+        
+        // Button only works if the model is not currently running.
+        if (!Storage.getInstance().getRuntime()) {
+          // This is the model that will run.
+          Model model = new Model((int) tickSpinner.getValue(), 3, slider.getValue(), (int) lightSpinner.getValue(),
+                  mPanel);
+          // Sets the cancel model loop to false in case the user has pressed
+          // reset or stop before running the model.
+          Storage.getInstance().setCancelModelLoop(false);
+          // Runs the model.
+          model.runModel();
+          // Repaints the live statistics panel to display updated figures.
+          sPanel.repaint();
+        }
       }
     });
     cpPanel.add(startButton, "wrap");
@@ -217,18 +238,23 @@ public class Main_gui {
     JButton autoVehiclesButton = new JButton("Auto add vehicles");
     autoVehiclesButton.setToolTipText("Automatically add a vehicle every 6 road tiles. Press multiple times for more vehicles.");
     autoVehiclesButton.addActionListener(new ActionListener() {
-      
+
       @Override
       public void actionPerformed(ActionEvent e) {
-        
-        if(Storage.getInstance().getTempMap() != null){
-          // Creates a dummy model - this is only created to access access
-          // listRoad() and autoAddVehicles() - this instance of the model will
-          // not be run.
-          Model model = new Model(500, 3, 10, mPanel);
-          // Adds a vehicle every six spaces. The button can be pressed multiple times to add more vehicles.
-        model.autoAddVehicles();
-        mPanel.repaint();
+
+        // Button only works if the model is not currently running.
+        if (!Storage.getInstance().getRuntime()) {
+          if (Storage.getInstance().getTempMap() != null) {
+            // Creates a dummy model - this is only created to access access
+            // listRoad() and autoAddVehicles() - this instance of the model
+            // will
+            // not be run.
+            Model model = new Model(500, 3, 10, 50, mPanel);
+            // Adds a vehicle every six spaces. The button can be pressed
+            // multiple times to add more vehicles.
+            model.autoAddVehicles();
+            mPanel.repaint();
+          }
         }
       }
     });
@@ -247,6 +273,77 @@ public class Main_gui {
       }
     });
     cpPanel.add(invertButton);
+    
+    
+    /*
+     * Deals with components in the statistics panel.
+     */
+    
+    // Makes the JTables within sPanel.
+    sPanel.makeTables();
+    
+
+    
+    
+    // Table to hold overall statistics that are shown after model completion. 2 rows , 2 columns. 
+    // These stats will be calculated and displayed after the model has ran. They show overall average figures. 
+    
+    int numOfRows2 = 2;
+    int numOfColumns2 = 2;
+    
+    // Overall average figures table.
+    JTable oTable = new JTable(numOfRows2, numOfColumns2);
+    oTable.setRowHeight(40);
+    
+    // Sets the column widths.
+    for (int i = 0; i < numOfColumns2; i++) {
+      TableColumn column = oTable.getColumnModel().getColumn(i);
+      // First column is much wider to hold descriptive text.
+      if(i == 0) column.setPreferredWidth(300);
+      // Second column will hold the numeric values.
+      if(i == 1) column.setPreferredWidth(60);
+    }
+    
+    // Grabs the model that will hold the dynamic data.
+    DefaultTableModel oModel = (DefaultTableModel)oTable.getModel();
+    oModel.setValueAt("Average percentage of vehicles stood still :", 0, 0);
+    oModel.setValueAt("Overall average distance :", 1, 0);
+    
+    //sPanel.add(oTable);
+    
+
+    
+    
+    
+    
+    
+    
+    
+    /*
+    // Layout manager for the statistics panel. Second parameter = rows third parameter = columns.
+    sPanel.setLayout(new MigLayout("","[][]", "20[]10[]20[]20[]"));
+    
+    // Sets up JLabels to be includes in the stats panel.
+    // These stats will update dynamically as the model runs.
+    JLabel numVeh = new JLabel("Number of vehicles in model : ");
+    JLabel perStill = new JLabel("Percentage of vehicles stood still : ");
+    JLabel avgDist = new JLabel("The average number of tiles between each vehicle and another vehicle : ");
+    
+    // These stats will be calculated and displayed after the model has ran. They show overall average figures. 
+    JLabel ovrPerStill = new JLabel("Average percentage of vehicles stood still : ");
+    JLabel ovrAvgDist = new JLabel("Overall average distance :");
+    
+    sPanel.add(numVeh, "wrap");
+    sPanel.add(perStill, "wrap");
+    sPanel.add(avgDist, "wrap");
+    sPanel.add(ovrPerStill, "wrap");
+    sPanel.add(ovrAvgDist);
+    
+  */
+    
+    
+    
+    
     
     /*
      * Deals with the menus.
@@ -373,8 +470,6 @@ class ControlPanel extends JPanel {
 
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    
-    g.drawString("Control Panel", 0, 20);
   }
 }
 
@@ -386,13 +481,60 @@ class ControlPanel extends JPanel {
  */
 class StatisticsPanel extends JPanel {
 
+  // Stores the model for the live statistics table.
+  private DefaultTableModel lModel;
+  
+  // Stores the live statistics table.
+  private JTable sTable;
+  
   public Dimension getPreferredSize() {
       return new Dimension(500, 500);
   }
+  
+  /**
+   * Creates the JTables to store the statistics data.
+   */
+  public void makeTables(){
+    
+    // Table to hold live statistics. 3 rows , 2 columns. 
+    // These stats will update dynamically as the model runs.
+    
+    
+    int numOfRows1 = 3;
+    int numOfColumns1 = 2;
+    
+    sTable = new JTable(numOfRows1, numOfColumns1);
+    sTable.setRowHeight(40);
+    
+    
+    // Sets the column widths.
+    for (int i = 0; i < numOfColumns1; i++) {
+      TableColumn column = sTable.getColumnModel().getColumn(i);
+      // First column is much wider to hold descriptive text.
+      if(i == 0) column.setPreferredWidth(300);
+      // Second column will hold the numeric values.
+      if(i == 1) column.setPreferredWidth(60);
+    }
+    
+
+    // Grabs the model that will hold the dynamic data.
+    lModel = (DefaultTableModel)sTable.getModel();
+    lModel.setValueAt("Number of vehicles in model : ", 0, 0);
+    lModel.setValueAt(Storage.getInstance().getNumOfVehicles(), 0, 1);
+    lModel.setValueAt("Percentage of vehicles stood still : ", 1, 0);
+    lModel.setValueAt("<html>" + "The average number of tiles between <br> each vehicle and another vehicle : ", 2, 0);
+    
+    
+    this.add(sTable);
+    
+  }
+  
+  
 
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     
-    g.drawString("Statistics", 0, 20);
+    lModel.setValueAt(Storage.getInstance().getNumOfVehicles(), 0, 1);
+    this.add(sTable);
   }
 }

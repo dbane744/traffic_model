@@ -34,8 +34,8 @@ public class MouseAdp extends MouseAdapter{
     // Gets the current instance of temporaryMap in Storage.
     double[][] tempMap = Storage.getInstance().getTempMap();
     
-    // Only listens for clicks if there is an image loaded in the panel.
-    if(tempMap != null){
+    // Only listens for clicks if there is an image loaded in the panel and the model is not running.
+    if(tempMap != null && !Storage.getInstance().getRuntime()){
     
     // Gets the current panel size.   
     Dimension currentpanelSize = mPanel.getSize();
