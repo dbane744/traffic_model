@@ -48,6 +48,11 @@ public class Storage {
    * Stores whether the data is currently being altered (the model is running).
    */
   private boolean runtime = false;
+  /**
+   * Stores the percentage of vehicles currently stood still.
+   * @return The percentage as a double.
+   */
+  private int percentStoodStill;
   
 
 
@@ -291,5 +296,22 @@ public class Storage {
   public boolean getRuntime(){
     
     return runtime;
+  }
+  
+  /**
+   * Stores the percentage of vehicles currently stood still.
+   */
+  public void setPercentStill(int percent){
+    
+    percentStoodStill = percent;
+  }
+  
+  /**
+   * Gets the percentage of vehicles currently stood still.
+   * @return The percentage in double format.
+   */
+  public int getPercentStill(){
+    
+    return percentStoodStill;
   }
 }

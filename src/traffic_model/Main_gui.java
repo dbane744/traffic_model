@@ -190,7 +190,7 @@ public class Main_gui {
         if (!Storage.getInstance().getRuntime()) {
           // This is the model that will run.
           Model model = new Model((int) tickSpinner.getValue(), 3, slider.getValue(), (int) lightSpinner.getValue(),
-                  mPanel);
+                  mPanel, sPanel);
           // Sets the cancel model loop to false in case the user has pressed
           // reset or stop before running the model.
           Storage.getInstance().setCancelModelLoop(false);
@@ -249,7 +249,7 @@ public class Main_gui {
             // listRoad() and autoAddVehicles() - this instance of the model
             // will
             // not be run.
-            Model model = new Model(500, 3, 10, 50, mPanel);
+            Model model = new Model(500, 3, 10, 50, null, null);
             // Adds a vehicle every six spaces. The button can be pressed
             // multiple times to add more vehicles.
             model.autoAddVehicles();
@@ -283,64 +283,6 @@ public class Main_gui {
     sPanel.makeTables();
     
 
-    
-    
-    // Table to hold overall statistics that are shown after model completion. 2 rows , 2 columns. 
-    // These stats will be calculated and displayed after the model has ran. They show overall average figures. 
-    
-    int numOfRows2 = 2;
-    int numOfColumns2 = 2;
-    
-    // Overall average figures table.
-    JTable oTable = new JTable(numOfRows2, numOfColumns2);
-    oTable.setRowHeight(40);
-    
-    // Sets the column widths.
-    for (int i = 0; i < numOfColumns2; i++) {
-      TableColumn column = oTable.getColumnModel().getColumn(i);
-      // First column is much wider to hold descriptive text.
-      if(i == 0) column.setPreferredWidth(300);
-      // Second column will hold the numeric values.
-      if(i == 1) column.setPreferredWidth(60);
-    }
-    
-    // Grabs the model that will hold the dynamic data.
-    DefaultTableModel oModel = (DefaultTableModel)oTable.getModel();
-    oModel.setValueAt("Average percentage of vehicles stood still :", 0, 0);
-    oModel.setValueAt("Overall average distance :", 1, 0);
-    
-    //sPanel.add(oTable);
-    
-
-    
-    
-    
-    
-    
-    
-    
-    /*
-    // Layout manager for the statistics panel. Second parameter = rows third parameter = columns.
-    sPanel.setLayout(new MigLayout("","[][]", "20[]10[]20[]20[]"));
-    
-    // Sets up JLabels to be includes in the stats panel.
-    // These stats will update dynamically as the model runs.
-    JLabel numVeh = new JLabel("Number of vehicles in model : ");
-    JLabel perStill = new JLabel("Percentage of vehicles stood still : ");
-    JLabel avgDist = new JLabel("The average number of tiles between each vehicle and another vehicle : ");
-    
-    // These stats will be calculated and displayed after the model has ran. They show overall average figures. 
-    JLabel ovrPerStill = new JLabel("Average percentage of vehicles stood still : ");
-    JLabel ovrAvgDist = new JLabel("Overall average distance :");
-    
-    sPanel.add(numVeh, "wrap");
-    sPanel.add(perStill, "wrap");
-    sPanel.add(avgDist, "wrap");
-    sPanel.add(ovrPerStill, "wrap");
-    sPanel.add(ovrAvgDist);
-    
-  */
-    
     
     
     
@@ -381,15 +323,19 @@ public class Main_gui {
     mnFile.add(mntmOpen);
     
     // Deals with the Save menu item.
+    // This button allows the user to save the current model display (temporary map in storage).
     
-    JMenuItem mntmSaveResults = new JMenuItem("Save results");
-    // Adds the keyboard shortcut ctrl + s.
-    mntmSaveResults.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
+    JMenuItem mntmSaveResults = new JMenuItem("Save map");
     mntmSaveResults.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         try {
-          // NOTE TO DANIEL : make a method in Storage that grabs the statistics results
-          //double[][] outputmap = Storage.getInstance().get***********();
+          
+          double[][] map = Storage.getInstance().getMap();
+          
+          // If there is map data loaded, a file dialog will appear allowing the user to save.
+          if(map != null){
+            IO.writeData(Storage.getInstance().getTempMap());
+          }
         } catch (Exception e1) {
           e1.printStackTrace();
         }
@@ -398,11 +344,12 @@ public class Main_gui {
 
     mnFile.add(mntmSaveResults);
     
-    // Deals with the Save as menu item.
+    // Deals with the Save Statistics menu item.
+    // This button allows the user to save the currently loaded statistics.
     
-    JMenuItem mntmSaveAs = new JMenuItem("Save as...");
+    JMenuItem mntmSaveAs = new JMenuItem("Save statistics");
     mnFile.add(mntmSaveAs);
-   
+    
     // Deals with the Exit menu item.  
     
     JMenuItem mntmExit = new JMenuItem("Exit");
@@ -520,12 +467,40 @@ class StatisticsPanel extends JPanel {
     // Grabs the model that will hold the dynamic data.
     lModel = (DefaultTableModel)sTable.getModel();
     lModel.setValueAt("Number of vehicles in model : ", 0, 0);
-    lModel.setValueAt(Storage.getInstance().getNumOfVehicles(), 0, 1);
     lModel.setValueAt("Percentage of vehicles stood still : ", 1, 0);
     lModel.setValueAt("<html>" + "The average number of tiles between <br> each vehicle and another vehicle : ", 2, 0);
     
-    
+    // Adds the table to the panel.
     this.add(sTable);
+    
+    
+    
+    // Table to hold overall statistics that are shown after model completion. 2 rows , 2 columns. 
+    // These stats will be calculated and displayed after the model has ran. They show overall average figures. 
+    
+    int numOfRows2 = 2;
+    int numOfColumns2 = 2;
+    
+    // Overall average figures table.
+    JTable oTable = new JTable(numOfRows2, numOfColumns2);
+    oTable.setRowHeight(40);
+    
+    // Sets the column widths.
+    for (int i = 0; i < numOfColumns2; i++) {
+      TableColumn column = oTable.getColumnModel().getColumn(i);
+      // First column is much wider to hold descriptive text.
+      if(i == 0) column.setPreferredWidth(300);
+      // Second column will hold the numeric values.
+      if(i == 1) column.setPreferredWidth(60);
+    }
+    
+    // Grabs the model that will hold the dynamic data.
+    DefaultTableModel oModel = (DefaultTableModel)oTable.getModel();
+    oModel.setValueAt("Average percentage of vehicles stood still :", 0, 0);
+    oModel.setValueAt("Overall average distance :", 1, 0);
+    
+    // Adds the table to the panel.
+    this.add(oTable);
     
   }
   
@@ -535,6 +510,7 @@ class StatisticsPanel extends JPanel {
     super.paintComponent(g);
     
     lModel.setValueAt(Storage.getInstance().getNumOfVehicles(), 0, 1);
+    lModel.setValueAt(Storage.getInstance().getPercentStill(), 1, 1);
     this.add(sTable);
   }
 }

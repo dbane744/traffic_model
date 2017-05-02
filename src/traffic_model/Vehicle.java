@@ -7,7 +7,13 @@ package traffic_model;
  */
 public class Vehicle {
   
+  /**
+   * Stores the current x position of the vehicle in the temporary map.
+   */
   private int currentX;
+  /**
+   * Stores the current y position of the vehicle in the temporary map.
+   */
   private int currentY;
 
   /**
@@ -21,6 +27,12 @@ public class Vehicle {
    * The maximum speed this vehicle can reach.
    */
   private int maxSpeed;
+  /**
+   * Stores whether the vehicle is stood still or not.
+   */
+  private boolean stoodStill;
+  
+  
   
   public Vehicle(int startingY, int startingX, int maxSpeed){
     this.currentX = startingX;
@@ -28,14 +40,14 @@ public class Vehicle {
     this.maxSpeed = maxSpeed;
   }
   
-  /*
+  /**
    * Gets the current X position of the vehicle.
    */
   public int getX(){
     return currentX;
   }
   
-  /*
+  /**
    * Gets the current Y position of the vehicle.
    */
   public int getY(){
@@ -57,4 +69,23 @@ public class Vehicle {
   public void setY(int newY){
     currentY = newY;
   }
+  
+  /**
+   * Sets whether teh vehicle is stood still or not.
+   * @param input A boolean value.
+   */
+  public void setStoodStill(boolean input){
+    
+    stoodStill = input;
+  }
+  
+  /**
+   * Gets whether the vehicle is stood still or not.
+   * @return A boolean value.
+   */
+  public boolean getStoodStill(){
+    
+    return stoodStill;
+  }
+  
 }

@@ -1,5 +1,7 @@
 package traffic_model;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,6 +34,10 @@ public class Model{
    * This stores the model panel to paint to.
    */
   private JPanel mPanel;
+  /**
+   * This stores the statistics panel to paint to.
+   */
+  private JPanel sPanel;
   
   /**
    * The number of ticks the red light on the traffic lights should stay on for.
@@ -45,7 +51,7 @@ public class Model{
    * @param maxSpeed The max number of spaces a vehicle can travel at max speed.
    * @param animationSpeed The speed in which each tick occurs in real-time.
    */
-  public Model(int runtime, int maxSpeed, double animationSpeed, int redLightLength, JPanel mPanel){
+  public Model(int runtime, int maxSpeed, double animationSpeed, int redLightLength, JPanel mPanel, JPanel sPanel){
     
     //Stores the arguments locally. 
     this.runtime = runtime;
@@ -53,6 +59,7 @@ public class Model{
     this.animationSpeed = animationSpeed;
     this.mPanel = mPanel;
     this.redLightLength = redLightLength;
+    this.sPanel = sPanel;
   }
   
   /**
@@ -103,7 +110,7 @@ public class Model{
         // Moves each vehicle depending on their current speed. 
         for (Vehicle vehicle : vehicleList) {
           
-          // Will end the loop and cancel the timer if the reset button has been pressed by the user /the temporary map has been reset.
+          // Will end the loop and cancel the timer if the reset button has been pressed by the user/the temporary map has been reset.
           if(Storage.getInstance().getCancelModelLoop()){
             // Resets the boolean within storage to false so the model can be run again.
             Storage.getInstance().setCancelModelLoop(false);
@@ -118,8 +125,13 @@ public class Model{
             Storage.getInstance().setRuntime(false);
             break;
           }
+          
           moveVehicle(vehicle);
         }
+        
+        // Calculates the percentage of vehicles stood still and saves the value in Storage.
+        calcPercentStoodStill();
+        sPanel.repaint();
         
         for(TrafficLight light : lightList){
           light.tick();
@@ -165,8 +177,10 @@ public class Model{
     Road nextTile = moveTo(vehicle.getY(), vehicle.getX());
     
    // Only moves if the new road tile is an empty road tile (which would be in the range of 1 to 4).
-  //**************************************************************** DANIEL : add traffic light logic later
     if(map[nextTile.getY()][nextTile.getX()] <= 4){
+      
+      // As the vehicle will now move the stood still state is set to false.
+      vehicle.setStoodStill(false);
       
       /*
        * Updates the map to the vehicle's new position.
@@ -183,7 +197,10 @@ public class Model{
       
       vehicle.setX(nextTile.getX());
       vehicle.setY(nextTile.getY());
-    } 
+    } else{
+      // If the vehicle didn't move the stood still state will be set to true.
+      vehicle.setStoodStill(true);
+    }
     // Repaints the model panel.
     mPanel.repaint();
   }
@@ -450,5 +467,28 @@ public class Model{
         iteration++;
       }
     }
+  }
+  
+  /**
+   * Calculates the percentage of vehicles currently stood still. Stores the value in Storage.
+   */
+  public void calcPercentStoodStill(){
+    
+    // Stores the total number of vehicles.
+    double totalVehicles = Storage.getInstance().getNumOfVehicles();
+    // Will store the number of vehicles stood still.
+    double stillVehicles = 0;
+    
+    for (Vehicle vehicle : vehicleList) {
+      // If the vehicle is still it will increment the above variable.
+      if(vehicle.getStoodStill()){
+        stillVehicles++;
+      }
+    }
+    
+    double percentStill = (stillVehicles / totalVehicles) * 100;
+    
+    // Stores the number in Storage. Casts to an int to remove the decimal places.
+    Storage.getInstance().setPercentStill((int)percentStill);
   }
 }
