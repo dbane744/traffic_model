@@ -131,6 +131,8 @@ public class Model{
         
         // Calculates the percentage of vehicles stood still and saves the value in Storage.
         calcPercentStoodStill();
+        // Calculates the average distance between each vehicle and the closet vehicle in front.
+        calcAverageVehicleDist();
         sPanel.repaint();
         
         for(TrafficLight light : lightList){
@@ -206,10 +208,17 @@ public class Model{
   }
   
   /**
-   * Moves to the next road tile.
-   * @param currentX The current x position.
-   * @param currentY The current y position.
-   * @return The road tile that is to be moved to(which encapsulates the x and y coordinates).
+   * Moves to the next road tile. The reason this method does not use the
+   * current road tile index to find the next tile is so that future versions of
+   * the software can more easily integrate intersecting roads that do not
+   * follow a specific road circuit.
+   * 
+   * @param currentX
+   *          The current x position.
+   * @param currentY
+   *          The current y position.
+   * @return The road tile that is to be moved to(which encapsulates the x and y
+   *         coordinates).
    */
   public Road moveTo(int currentY, int currentX){
     
@@ -263,7 +272,7 @@ public class Model{
   /**
    * Finds and returns the road type of the inputed road value (Road type being
    * the direction the road is facing i.e north = 1, east = 2, south = 3, west =
-   * 4). Filters out any overlapping objects such as vehicles.
+   * 4). Filters out any overlapping objects such as vehicles and traffic lights.
    * 
    * @return A value in the range of 1-4 corresponding to the inputed tile's directional road value.
    */
@@ -490,5 +499,75 @@ public class Model{
     
     // Stores the number in Storage. Casts to an int to remove the decimal places.
     Storage.getInstance().setPercentStill((int)percentStill);
+  }
+  
+  /**
+   * Calculates the average number of tiles the closest vehicle is to the vehicle in front.
+   */
+  public void calcAverageVehicleDist(){
+    
+    // Will store the individual distances for each vehicle.
+    ArrayList<Double> distanceValues = new ArrayList<Double>();
+    
+    // Grabs an instance of temp map.
+    double[][] map = Storage.getInstance().getTempMap();
+    
+    // Loops through each vehicle to gain the distance values.
+    for (Vehicle vehicle : vehicleList) {
+      
+      // Grabs the current coordinates of the vehicle.
+      int x = vehicle.getX();
+      int y = vehicle.getY();
+      
+      // Stores the current road tile value.
+      int currentRoadValue = (int) map[y][x];
+      
+      // States whether the closest vehicle has been found yet.
+      boolean found = false;
+      
+      // The distance to search for another vehicle.
+      double searchRadius = 1;
+      
+      // Will store the road tile to examine.
+      Road roadTile;
+      
+      while(!found){
+        
+        // Finds the next road tile to examine.
+         roadTile = (moveTo(y,x));
+        
+        // If the examined tile contains a vehicle the while loop will finish and the searchRadius will be stored in distanceValues.
+        if((map[roadTile.getY()][roadTile.getX()] >= 10 && map[roadTile.getY()][roadTile.getX()] <=14) || (map[roadTile.getY()][roadTile.getX()] >= 110 && map[roadTile.getY()][roadTile.getX()] <=114)){
+          
+          distanceValues.add(searchRadius);
+          found = true;
+        } else { // If no vehicle is found the search radius will increment and x and y will be set to the examined tile.
+          searchRadius++;
+          x = roadTile.getX();
+          y = roadTile.getY();
+        }
+
+      }
+    }
+    
+    // Sums of the distance values.
+    double sum = 0;
+    // Count of the distance values.
+    double count = 0;
+    
+    // Finds the average value of all the distances.
+    for (double distanceValue : distanceValues) {
+      
+      count++;
+      sum =+ distanceValue;
+    }
+    
+    
+    // Calculates the average and stores the value in Storage.
+    double average = sum / count;
+    
+    System.out.println(average);
+    
+    Storage.getInstance().setAverageVehicDist(average);
   }
 }

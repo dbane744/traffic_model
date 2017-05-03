@@ -53,7 +53,10 @@ public class Storage {
    * @return The percentage as a double.
    */
   private int percentStoodStill;
-  
+  /**
+   * Stores the average number of tiles each vehicle is from the vehicle in front.
+   */
+  private double averageVehicDist;
 
 
   
@@ -313,5 +316,23 @@ public class Storage {
   public int getPercentStill(){
     
     return percentStoodStill;
+  }
+  
+  /**
+   * Stores the average distance between each vehicle and the vehicle in front.
+   * @param value
+   */
+  public void setAverageVehicDist(double value){
+    
+    averageVehicDist = value;
+  }
+  
+  /**
+   * Gets the average distance between each vehicle and the vehicle in front.
+   * @return Double value.
+   */
+  public double getAverageVehicDist(){
+    
+    return averageVehicDist;
   }
 }

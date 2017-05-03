@@ -494,7 +494,7 @@ class StatisticsPanel extends JPanel {
       if(i == 1) column.setPreferredWidth(60);
     }
     
-    // Grabs the model that will hold the dynamic data.
+    // Grabs the model that will hold the overall average data.
     DefaultTableModel oModel = (DefaultTableModel)oTable.getModel();
     oModel.setValueAt("Average percentage of vehicles stood still :", 0, 0);
     oModel.setValueAt("Overall average distance :", 1, 0);
@@ -509,8 +509,14 @@ class StatisticsPanel extends JPanel {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     
+    /*
+     * Paints the values of the dynamic statistics using values stored in Storage.
+     */
+    
     lModel.setValueAt(Storage.getInstance().getNumOfVehicles(), 0, 1);
     lModel.setValueAt(Storage.getInstance().getPercentStill(), 1, 1);
+    lModel.setValueAt(Storage.getInstance().getAverageVehicDist(), 2, 1);
+    
     this.add(sTable);
   }
 }
