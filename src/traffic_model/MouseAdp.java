@@ -25,10 +25,14 @@ public class MouseAdp extends MouseAdapter{
    */
   JPanel mPanel;
   
+
   public MouseAdp(JPanel mPanel){
     this.mPanel = mPanel;
   }
   
+  /**
+   * The listener for mouse clicks. A left click on the road will place a vehicle. A right click will place a traffic light.
+   */
   public void mouseClicked(MouseEvent me){
     
     // Gets the current instance of temporaryMap in Storage.

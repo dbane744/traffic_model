@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Encapsulates the position of a traffic light and its current red light on/off
  * state.
  * 
- * @author User
+ * @author Daniel Bane
  *
  */
 public class TrafficLight {
@@ -30,9 +30,7 @@ public class TrafficLight {
   /**
    * On instantiation, generates a random number between 10 and 50. This is the
    * number of ticks the light will take before turning the red light on. It is
-   * meant to represent the random nature in which pedestrians cross the road +
-   * the fact some pedestrian crossings are more used / take longer to activate
-   * than others.
+   * meant to represent the fact that some traffic lights stay on green light for longer than others.
    */
   private int noLightLength = ThreadLocalRandom.current().nextInt(10, 50 + 1);
   
@@ -116,8 +114,5 @@ public class TrafficLight {
     }
     
     // If the light is already on and there is no vehicle on the tile it will do nothing.
-    
-    
   }
-
 }

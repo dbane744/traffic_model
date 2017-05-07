@@ -189,13 +189,17 @@ public class Main_gui {
         // Button only works if the model is not currently running.
         if (!Storage.getInstance().getRuntime()) {
           // This is the model that will run.
-          Model model = new Model((int) tickSpinner.getValue(), 3, slider.getValue(), (int) lightSpinner.getValue(),
+          Model model = new Model((int) tickSpinner.getValue(), slider.getValue(), (int) lightSpinner.getValue(),
                   mPanel, sPanel);
           // Sets the cancel model loop to false in case the user has pressed
-          // reset or stop before running the model.
+          // reset before running the model.
           Storage.getInstance().setCancelModelLoop(false);
-          // Runs the model.
-          model.runModel();
+          
+
+              // Runs the model.
+              model.runModel();
+          
+
           // Repaints the live statistics panel to display updated figures.
           sPanel.repaint();
         }
@@ -203,20 +207,6 @@ public class Main_gui {
     });
     cpPanel.add(startButton, "wrap");
     
-    // Deals with the stop button.
-    
-    JButton stopButton = new JButton("STOP");
-    stopButton.setToolTipText("Click to stop the model");
-    stopButton.addActionListener(new ActionListener() {
-      
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        
-        // Stops currently running model. 
-        Storage.getInstance().setCancelModelLoop(true);
-      }
-    });
-    cpPanel.add(stopButton, "wrap");
     
     // Deals with the reset button.
     
@@ -249,7 +239,7 @@ public class Main_gui {
             // listRoad() and autoAddVehicles() - this instance of the model
             // will
             // not be run.
-            Model model = new Model(500, 3, 10, 50, null, null);
+            Model model = new Model(500,10, 50, null, null);
             // Adds a vehicle every six spaces. The button can be pressed
             // multiple times to add more vehicles.
             model.autoAddVehicles();
@@ -431,8 +421,14 @@ class StatisticsPanel extends JPanel {
   // Stores the model for the live statistics table.
   private DefaultTableModel lModel;
   
+  // Stores the model for the summary statistics table.
+  private DefaultTableModel oModel;
+  
   // Stores the live statistics table.
   private JTable sTable;
+  
+  // Stores the summary statistics table.
+  private JTable oTable;
   
   public Dimension getPreferredSize() {
       return new Dimension(500, 500);
@@ -460,7 +456,7 @@ class StatisticsPanel extends JPanel {
       // First column is much wider to hold descriptive text.
       if(i == 0) column.setPreferredWidth(300);
       // Second column will hold the numeric values.
-      if(i == 1) column.setPreferredWidth(60);
+      if(i == 1) column.setPreferredWidth(140);
     }
     
 
@@ -482,7 +478,7 @@ class StatisticsPanel extends JPanel {
     int numOfColumns2 = 2;
     
     // Overall average figures table.
-    JTable oTable = new JTable(numOfRows2, numOfColumns2);
+    oTable = new JTable(numOfRows2, numOfColumns2);
     oTable.setRowHeight(40);
     
     // Sets the column widths.
@@ -491,13 +487,13 @@ class StatisticsPanel extends JPanel {
       // First column is much wider to hold descriptive text.
       if(i == 0) column.setPreferredWidth(300);
       // Second column will hold the numeric values.
-      if(i == 1) column.setPreferredWidth(60);
+      if(i == 1) column.setPreferredWidth(140);
     }
     
     // Grabs the model that will hold the overall average data.
-    DefaultTableModel oModel = (DefaultTableModel)oTable.getModel();
+    oModel = (DefaultTableModel)oTable.getModel();
     oModel.setValueAt("Average percentage of vehicles stood still :", 0, 0);
-    oModel.setValueAt("Overall average distance :", 1, 0);
+    oModel.setValueAt("Overall average distance between vehicles :", 1, 0);
     
     // Adds the table to the panel.
     this.add(oTable);
@@ -517,6 +513,18 @@ class StatisticsPanel extends JPanel {
     lModel.setValueAt(Storage.getInstance().getPercentStill(), 1, 1);
     lModel.setValueAt(Storage.getInstance().getAverageVehicDist(), 2, 1);
     
+    
+    
+    // Paints summary statistics if the overall distance value is not 0.
+    if(Storage.getInstance().getOverallDist() != 0){
+    
+    	// Obtains the summary statistics from Storage.
+    oModel.setValueAt(Storage.getInstance().getOverallStill(), 0, 1);
+    oModel.setValueAt(Storage.getInstance().getOverallDist(), 1, 1);
+    }
+    
+    // Repaints the tables. 
     this.add(sTable);
+    this.add(oTable);
   }
 }

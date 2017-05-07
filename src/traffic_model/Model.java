@@ -48,14 +48,12 @@ public class Model{
   /**
    * 
    * @param runtime The number of ticks the model will run for.
-   * @param maxSpeed The max number of spaces a vehicle can travel at max speed.
    * @param animationSpeed The speed in which each tick occurs in real-time.
    */
-  public Model(int runtime, int maxSpeed, double animationSpeed, int redLightLength, JPanel mPanel, JPanel sPanel){
+  public Model(int runtime, double animationSpeed, int redLightLength, JPanel mPanel, JPanel sPanel){
     
     //Stores the arguments locally. 
     this.runtime = runtime;
-    this.maxSpeed = maxSpeed;
     this.animationSpeed = animationSpeed;
     this.mPanel = mPanel;
     this.redLightLength = redLightLength;
@@ -91,6 +89,13 @@ public class Model{
     
     // Finds and stores all the vehicles in the vehicle list.
     listVehicles();
+
+    // Will store all the average percentages of vehicles stood still.
+    ArrayList<Double> stoodStillList = new ArrayList<Double>(); 
+    
+    // Will store all the average distances between vehicles.
+    ArrayList<Double> avDistList = new ArrayList<Double>(); 
+    
     
     // A timer to wait between vehicle movements to allow the user to see the modelling process.
     Timer timer = new Timer();
@@ -98,6 +103,7 @@ public class Model{
       
       // Stores the number of iterations the model has ran for.
       int iterations = 0;
+      
       
       // This will run once at a certain interval defined by the user in 'runtime'.
       @Override
@@ -107,7 +113,7 @@ public class Model{
         // features that would break the model if used during runtime.
         Storage.getInstance().setRuntime(true);
 
-        // Moves each vehicle depending on their current speed. 
+        // Moves each vehicle.
         for (Vehicle vehicle : vehicleList) {
           
           // Will end the loop and cancel the timer if the reset button has been pressed by the user/the temporary map has been reset.
@@ -129,22 +135,31 @@ public class Model{
           moveVehicle(vehicle);
         }
         
-        // Calculates the percentage of vehicles stood still and saves the value in Storage.
-        calcPercentStoodStill();
-        // Calculates the average distance between each vehicle and the closet vehicle in front.
-        calcAverageVehicleDist();
+        // Calculates the percentage of vehicles stood still and saves the value in Storage and stoodStillList.
+        double still = calcPercentStoodStill();
+        Storage.getInstance().setPercentStill((int)still);
+        stoodStillList.add(still);
+        
+        // Calculates the average distance between each vehicle and the closet vehicle in front. Adds the value to storage and avDistList.
+        double dist = calcAverageVehicleDist();
+        Storage.getInstance().setAverageVehicDist(dist);
+        avDistList.add(dist);
+        
+        
         sPanel.repaint();
         
         for(TrafficLight light : lightList){
           light.tick();
         }
         
-        
-        
         iterations++;
         
         // Ends the model when the number of runtime iterations is reached.
         if(iterations == runtime){
+        	
+        	// Calculate the overall average of all the average values obtained in the model and stores them in storage.
+        	Storage.getInstance().setOverallStill(calcListAverage(stoodStillList));
+        	Storage.getInstance().setOverallDist(calcListAverage(avDistList));
           
           // The traffic light values in the stored
           // temporary map are reset to +100 to allow the identification of the
@@ -423,7 +438,7 @@ public class Model{
               || map[road.getY()][road.getX()] == 12 || map[road.getY()][road.getX()] == 13) {
         
         // Creates a new Vehicle and adds it to the list. Uses the position of the current road tile and the locally stored maxSpeed.
-        vehicleList.add(new Vehicle(road.getY(), road.getX(), maxSpeed));
+        vehicleList.add(new Vehicle(road.getY(), road.getX()));
        }
     }
      // Stores the number of vehicles in Storage so it can be accessed by the gui.
@@ -479,9 +494,10 @@ public class Model{
   }
   
   /**
-   * Calculates the percentage of vehicles currently stood still. Stores the value in Storage.
+   * Calculates the percentage of vehicles currently stood still. 
+   * 
    */
-  public void calcPercentStoodStill(){
+  public double calcPercentStoodStill(){
     
     // Stores the total number of vehicles.
     double totalVehicles = Storage.getInstance().getNumOfVehicles();
@@ -497,14 +513,14 @@ public class Model{
     
     double percentStill = (stillVehicles / totalVehicles) * 100;
     
-    // Stores the number in Storage. Casts to an int to remove the decimal places.
-    Storage.getInstance().setPercentStill((int)percentStill);
+    return percentStill;
+
   }
   
   /**
    * Calculates the average number of tiles the closest vehicle is to the vehicle in front.
    */
-  public void calcAverageVehicleDist(){
+  public double calcAverageVehicleDist(){
     
     // Will store the individual distances for each vehicle.
     ArrayList<Double> distanceValues = new ArrayList<Double>();
@@ -566,8 +582,23 @@ public class Model{
     // Calculates the average and stores the value in Storage.
     double average = sum / count;
     
-    System.out.println(average);
-    
-    Storage.getInstance().setAverageVehicDist(average);
+    return average;
+  }
+  
+  /**
+   * Calculates the overall average of values in the given list.
+   */
+  public double calcListAverage(ArrayList<Double> list){
+	  
+	  // Stores the sum of all the averages.
+	  double sum = 0;
+	  
+	  for (int i = 0; i < list.size(); i++) {
+		sum+= list.get(i);
+	}
+	  
+	  double average = sum / list.size();
+	  
+	  return average;
   }
 }

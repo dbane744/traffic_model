@@ -24,20 +24,15 @@ public class Vehicle {
    */
   private int currentSpeed;
   /**
-   * The maximum speed this vehicle can reach.
-   */
-  private int maxSpeed;
-  /**
    * Stores whether the vehicle is stood still or not.
    */
   private boolean stoodStill;
   
   
   
-  public Vehicle(int startingY, int startingX, int maxSpeed){
+  public Vehicle(int startingY, int startingX){
     this.currentX = startingX;
     this.currentY = startingY;
-    this.maxSpeed = maxSpeed;
   }
   
   /**
