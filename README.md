@@ -21,6 +21,7 @@ OPERATING INSTRUCTIONS
 ---------------------
 
 IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
+
 -Model environments must be in the form of a txt file. It must be a rectangular map of numbers. It is recommended that maps be of 100x100 in size for the best visual representation within the model panel. 
 
 -Each element/tile within the txt file must be numbered with one of the following numbers depending on what it represents:
@@ -35,6 +36,7 @@ IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
 -Failing to import a complete road circuit that does not use the correct road values will crash the application when the model is ran.
 
 RUNNING A MODEL:
+
 -Import the road network using file --> open. The file must be a txt.
 
 -To place a vehicle on the imported road nextwork left click on a road tile in the model panel. Alternativley, click the 'auto add vehicles' button in the control panel. This adds a vehicle on every 7th tile. Press the button multiple times for more vehicles.
