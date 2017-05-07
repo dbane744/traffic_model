@@ -52,6 +52,7 @@ RUNNING A MODEL:
 -Press the reset button if you would like to start from the originally imported model environment.
 
 SAVING THE MODEL'S CURRENT STATE AND STATISTICS
+
 -While the model window is currently displaying an environment select file --> save to save the current state. This state can be then loaded into the application and is treated as the environment's original state (the reset button will reset to that).
 
 -To save the currently displayed overall statistics selcet file --> save statistics. This will save just the overall/average statistics as a txt file.
