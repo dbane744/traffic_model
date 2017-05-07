@@ -22,7 +22,7 @@ OPERATING INSTRUCTIONS
 
 IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
 
--Model environments must be in the form of a txt file. It must be a rectangular map of numbers. It is recommended that maps be of 100x100 in size for the best visual representation within the model panel. 
+-Model environments must be in the form of a txt, csv or similar file. It must be a rectangular map of numbers. It is recommended that maps be of 100x100 in size for the best visual representation within the model panel. 
 
 -Each element/tile within the txt file must be numbered with one of the following numbers depending on what it represents:
 0 : Empty space
@@ -37,7 +37,7 @@ IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
 
 RUNNING A MODEL:
 
--Import the road network using file --> open. The file must be a txt.
+-Import the road network using file --> open. The file must be a txt or csv or similar format.
 
 -To place a vehicle on the imported road nextwork left click on a road tile in the model panel. Alternativley, click the 'auto add vehicles' button in the control panel. This adds a vehicle on every 7th tile. Press the button multiple times for more vehicles.
 
@@ -55,4 +55,4 @@ SAVING THE MODEL'S CURRENT STATE AND STATISTICS:
 
 -While the model window is currently displaying an environment select file --> save to save the current state. This state can be then loaded into the application and is treated as the environment's original state (the reset button will reset to that).
 
--To save the currently displayed overall statistics selcet file --> save statistics. This will save just the overall/average statistics as a txt file.
+-To save the currently displayed overall statistics selcet file --> save statistics. This will save just the overall/average statistics as a txt file by default.
