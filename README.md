@@ -20,7 +20,7 @@ GENERAL USAGE NOTES
 OPERATING INSTRUCTIONS
 ---------------------
 
-*IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT*:
+IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
 -Model environments must be in the form of a txt file. It must be a rectangular map of numbers. It is recommended that maps be of 100x100 in size for the best visual representation within the model panel. 
 -Each element/tile within the txt file must be numbered with one of the following numbers depending on what it represents:
 0 : Empty space
