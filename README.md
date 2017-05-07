@@ -5,7 +5,7 @@ README
 
 This application aims to model traffic congestion in a one directional road circuit using an agent-based traffic wave model with lights.
 
-example_road_network.csv is available for download from the github page. This is a sample road network that works with the software.
+example_road_network.csv is available for download from the github page. This is a sample road network that works with the software. Select this file using file --> open.
 
 
 
