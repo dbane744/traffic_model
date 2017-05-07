@@ -28,11 +28,17 @@ IMPORTING A CUSTOM BUILT ROAD NETWORK/MODEL ENVIRONMENT:
 -Model environments must be in the form of a txt, csv or similar file. It must be a rectangular map of numbers. It is recommended that maps be of 100x100 in size for the best visual representation within the model panel. 
 
 -Each element/tile within the txt file must be numbered with one of the following numbers depending on what it represents:
+
 0 : Empty space
+
 1 : A north facing road.
+
 2 : An east facing road.
+
 3 : A south facing road.
+
 4 : A west facing road.
+
 
 -I.e. A north facing road is a road where the vehicles move north on that road.
 
