@@ -7,6 +7,8 @@ This application aims to model traffic congestion in a one directional road circ
 
 example_road_network.csv is available for download from the github page. This is a sample road network that works with the software. Select this file using file --> open.
 
+To run the application double click traffic_model.jar which is available from the github page.
+
 
 
 GENERAL USAGE NOTES
