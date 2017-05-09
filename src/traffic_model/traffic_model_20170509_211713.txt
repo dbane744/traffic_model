@@ -1,0 +1,28 @@
+WARNING - 21:17:13: First conversion pass
+WARNING - 21:17:14: Second pass : generating package usages
+WARNING - 21:17:14: Saving .uml resource: 20170509_211714
+WARNING - 21:17:14: Finished saving .uml resource: 20170509_211714
+ERROR - 21:17:14: Multiple exceptions
+----- exceptions : ----------
+unknown : No service found under key 'org.eclipse.papyrus.infra.ui.services.EditorLifecycleManager'
+unknown : No service found under key 'org.eclipse.papyrus.infra.ui.editor.IMultiDiagramEditor'
+unknown : No service found under key 'org.eclipse.papyrus.infra.ui.services.EditorLifecycleManager'
+unknown : No service found under key 'org.eclipse.papyrus.infra.ui.editor.IMultiDiagramEditor'
+org.eclipse.papyrus.infra.ui.lifecycleevents.ISaveAndDirtyService : No service registered under 'interface org.eclipse.papyrus.infra.ui.editor.IMultiDiagramEditor'
+org.eclipse.papyrus.infra.ui.lifecycleevents.ISaveAndDirtyService : Bad state for service 'org.eclipse.papyrus.infra.ui.lifecycleevents.ISaveAndDirtyService'. Expected 'initialized' found 'error'.
+----------------------------- 
+
+WARNING - 21:17:14: Creating class diagrams
+WARNING - 21:17:22: First conversion pass
+ERROR - 21:17:22: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/bin/.gitignore; systemId: file:///traffic_model/bin/.gitignore; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:17:22: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/bin/.gitignore; systemId: file:///traffic_model/bin/.gitignore; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:17:39: Convert traffic_model
+WARNING - 21:17:39: First conversion pass
+ERROR - 21:17:39: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:17:39: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:17:43: Convert traffic_model
+WARNING - 21:17:43: First conversion pass
+ERROR - 21:17:43: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:17:43: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:33:53: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:33:53: org.xml.sax.SAXParseExceptionpublicId: /traffic_model/src/traffic_model/ControlPanel.java; systemId: file:///traffic_model/src/traffic_model/ControlPanel.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
