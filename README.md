@@ -9,7 +9,7 @@ example_road_network.csv is available for download from the github page. This is
 
 To run the application double click traffic_model.jar which is available from the github page.
 
-If running the application using the source code (and not the jar file) you must add miglayout15-swing.jar, which is available frm the github page, to the classpath.
+If running the application using the source code (and not the jar file) you must add miglayout15-swing.jar, which is available frm the github page, to the classpath. A classpath called .classpath with this in is also available on the github page
 
 
 
