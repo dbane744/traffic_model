@@ -18,6 +18,8 @@ GENERAL USAGE NOTES
 
 -On creation, traffic lights are given a random number of ticks they will stay off for. This number is between 10 and 50. This is meant to simulate the fact that some traffic lights are more used/stay on green light for longer than others.
 
+-The 'overall average distance between vehicles' statistic in the statistic panel shows the average number of tiles there is between each vehicle and the vehicle in front of them.
+
 
 
 OPERATING INSTRUCTIONS
