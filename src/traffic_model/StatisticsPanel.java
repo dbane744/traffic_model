@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package traffic_model;
 
 import java.awt.Dimension;
