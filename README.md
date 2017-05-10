@@ -24,7 +24,7 @@ GENERAL USAGE NOTES
 
 -The 'overall average distance between vehicles' statistic in the statistic panel shows the average number of tiles there is between each vehicle and the vehicle in front of them.
 
--Saved statistics (int the .txt file) correspond to the following keys: 1 = Overall percetange of vehicles stood still, 2= Overall average distance betweecen each vehicle and the vehicle in front.
+-Saved statistics (in the .txt file) correspond to the following keys: 1 = Overall percetange of vehicles stood still, 2= Overall average distance between each vehicle and the vehicle in front.
 
 
 
