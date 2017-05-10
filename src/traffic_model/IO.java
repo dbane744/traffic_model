@@ -57,9 +57,7 @@ public class IO {
 			br = new BufferedReader(new FileReader(f));
 		} catch (FileNotFoundException | NullPointerException ex) {
 
-			// Ends the method if no file is selected and throws a
-			// RuntimeException
-			throw new RuntimeException(ex);
+			ex.printStackTrace();
 		}
 
 		// Counts the number of lines in the file.
@@ -84,7 +82,7 @@ public class IO {
 				br.close();
 			} catch (IOException ioe2) {
 
-				throw new RuntimeException(ioe2);
+				ioe2.printStackTrace();
 			}
 		}
 		// Now that the number of lines has been counted the data will be read.
@@ -114,7 +112,7 @@ public class IO {
 			try {
 				br.close();
 			} catch (IOException e2) {
-				throw new RuntimeException(e2);
+				e2.printStackTrace();
 			}
 		}
 
@@ -165,7 +163,7 @@ public class IO {
 			bw = new BufferedWriter(new FileWriter(f2));
 
 		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
+			ioe.printStackTrace();
 		}
 
 		try {
@@ -189,7 +187,7 @@ public class IO {
 				bw.close();
 
 			} catch (IOException ioe3) {
-				throw new RuntimeException(ioe3);
+				ioe3.printStackTrace();
 			}
 		}
 	}
