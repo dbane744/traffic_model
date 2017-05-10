@@ -344,7 +344,7 @@ public class Storage {
 
 	/**
 	 * Stores the average distance between each vehicle and the vehicle in front.
-	 * @param value
+	 * @param Double value
 	 */
 	public void setAverageVehicDist(double value){
 
@@ -359,22 +359,34 @@ public class Storage {
 
 		return averageVehicDist;
 	}
-	
+	/**
+	 * Sets the over percentage of vehicles that were stood still.
+	 * @param input Double value
+	 */
 	public void setOverallStill(double input){
 		
 		overallStill = input;
 	}
-	
+         /**
+	 * Gets the overall average percentage of vehicles that were stood still.
+	 * @return Double value.
+	 */
 	public double getOverallStill(){
 		
 		return overallStill;
 	}
-	
+	/**
+	 * Stores the overall average distance between each vehicle and the vehicle in front.
+	 * @param input Double value.
+	 */
 	public void setOverallDist(double input){
 		
 		overallDist = input;
 	}
-	
+	/**
+	 * Gets the overall average distance between each vehicle and the vehicle in front.
+	 * @return Double value.
+	 */
 	public double getOverallDist(){
 		
 		return overallDist;
