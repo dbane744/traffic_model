@@ -191,7 +191,7 @@ public class Main_gui {
 		slider.setMajorTickSpacing(10);
 		slider.setPaintTicks(true);
 
-		// Cerates the slider label table.
+		// Creates the slider label table.
 		// This displays JLabel text on the slider to show the slow end and the
 		// fast end.
 		Hashtable table = new Hashtable();
