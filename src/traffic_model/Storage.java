@@ -215,7 +215,7 @@ public class Storage {
 					pixels[i] = color.getRGB();
 				} 
 
-				// Sets the colour of the traffic lights(which should be valued 100) and the two adjacent tiles(which are valued as 200) to red.
+				// Sets the colour of the traffic lights(which should be valued >100) and the two adjacent tiles(which are valued as 200) to red.
 				else if (value > 100){
 
 					Color color = new Color(255, 0, 0);
